@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文藻美語 圖片公告編輯器</title>
+    <!-- 引入Bootstrap和Font Awesome的CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- 引入Sortable.js用於拖拽排序功能 -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <!-- <link rel=stylesheet type="text/css" href="style.css"> -->
+    <style>
+        /* 定義自定義字體 */
+        /* @font-face {
+            font-family: 'GenSenRounded';
+            src: url('GenSenRounded-R.otf') format('opentype');
+        } */
+
+        /* 全局樣式設置 */
+        html,
+        body {
+            font-family: 'GenSenRounded', 'Noto Sans TC', sans-serif;
+            padding: 10px;
+            background-color: #f8f9fa;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* 容器最大寬度設置 */
+        .container {
+            max-width: 100%;
+        }
+
+        /* 圖片預覽樣式 */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 圖片容器樣式 */
+        .img-container {
+            position: relative;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            cursor: move;
+        }
+
+        /* 刪除按鈕樣式 */
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            cursor: pointer;
+        }
+
+        /* 顏色預覽樣式 */
+        .color-preview {
+            width: 30px;
+            display: inline-block;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        /* URL顯示區域樣式 */
+        .url-display {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            overflow-wrap: break-word;
+        }
+
+        /* 複製按鈕樣式 */
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /* 主色和副色預覽樣式 */
+        #primaryColorPreview {
+            background-color: #02a568;
+        }
+
+        #secondaryColorPreview {
+            background-color: #e6f7f0;
+        }
+
+        /* 編輯器區域樣式 */
+        #editorSection {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* 預覽區域樣式 */
+        #previewSection {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+            height: calc(100vh - 150px);
+            overflow: hidden;
+        }
+
+        /* 設備模擬器容器 */
+        .device-simulator {
+            position: relative;
+            background: #333;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 手機模擬器 */
+        .device-simulator.mobile {
+            width: 390px;
+            height: 844px;
+            border-radius: 30px;
+            padding: 30px 15px;
+        }
+
+        /* 平板模擬器 */
+        .device-simulator.tablet {
+            width: 820px;
+            height: 1180px;
+            border-radius: 25px;
+            padding: 25px;
+        }
+
+        /* 桌機模擬器 */
+        .device-simulator.desktop {
+            width: 1400px;
+            height: 900px;
+            border-radius: 10px;
+            padding: 10px;
+            background: #222;
+        }
+
+        /* 設備螢幕 */
+        .device-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .device-screen.mobile {
+            border-radius: 20px;
+        }
+
+        .device-screen.tablet {
+            border-radius: 15px;
+        }
+
+        .device-screen.desktop {
+            border-radius: 5px;
+        }
+
+        /* 預覽iframe樣式 */
+        #previewIframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* 設備標籤 */
+        .device-label {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* 縮放容器以適應視窗 */
+        .preview-container {
+            transform-origin: top center;
+            transition: transform 0.3s ease;
+        }
+
+        /* 圖片列表樣式 */
+        #imageList {
+            min-height: 50px;
+        }
+
+
+        /* 為所有滾動條設定樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            /* 垂直滾動條的寬度 */
+            height: 8px;
+            /* 水平滾動條的高度 */
+        }
+
+        /* 滾動條滑塊（滑動部分） */
+        ::-webkit-scrollbar-thumb {
+            background-color: #AAA;
+            /* 滑塊顏色 */
+            border-radius: 4px;
+            /* 滑塊圓角 */
+            border: 2px solid transparent;
+            /* 避免內容被遮擋 */
+            background-clip: content-box;
+            /* 防止顏色延伸到邊界 */
+        }
+
+        /* 滾動條軌道（滑塊移動的區域） */
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            /* 軌道顏色 */
+            border-radius: 4px;
+            /* 軌道圓角 */
+        }
+
+
+        .col-scrollable {
+            height: 100vh;
+            /* 設定高度為視窗的100% */
+            overflow-y: auto;
+            /* 內容超出時顯示滾動條 */
+        }
+
+        .col-scrollable.right-column {
+            overflow: hidden;
+            /* 右側欄位隱藏滾動條 */
+        }
+
+        /* Range Slider 自訂樣式 */
+        .form-range {
+            height: 6px;
+            background: linear-gradient(to right, #e9ecef 0%, #e9ecef 100%);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        /* WebKit 瀏覽器的滑桿軌道 */
+        .form-range::-webkit-slider-track {
+            height: 6px;
+            background: #dee2e6;
+            border-radius: 3px;
+        }
+
+        /* WebKit 瀏覽器的滑桿滑塊 */
+        .form-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #0d6efd;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-range::-webkit-slider-thumb:hover {
+            background: #0b5ed7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Firefox 瀏覽器的滑桿軌道 */
+        .form-range::-moz-range-track {
+            height: 6px;
+            background: #dee2e6;
+            border-radius: 3px;
+        }
+
+        /* Firefox 瀏覽器的滑桿滑塊 */
+        .form-range::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #0d6efd;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-range::-moz-range-thumb:hover {
+            background: #0b5ed7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 767px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .copy-btn {
+                width: 15%;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .copy-btn {
+                width: 8%;
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 主要內容區域 -->
+    <div class="row" style="height: 100vh; margin: 0;">
+        <!-- 編輯器區域 -->
+        <div id="left-column" class="col-lg-4 col-12 col-scrollable" style="overflow: auto;">
+            <div id="editorSection" class="container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>圖片公告編輯器 <i class="fas fa-history" data-bs-toggle="modal" data-bs-target="#decodeModal"></i></h2>
+                </div>
+                <!-- 標題和日期輸入區 -->
+                <div class="row mb-3">
+                    <div class="col-lg-6 mb-3">
+                        <label for="title" class="form-label">標題</label>
+                        <input type="text" class="form-control form-control" id="title">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="date" class="form-label">日期</label>
+                        <input type="date" class="form-control form-control" id="date" value="">
+                    </div>
+                </div>
+                <!-- 顏色和排列選擇區 -->
+                <div class="row mb-3">
+                    <div class="col-lg-4 mb-3">
+                        <label for="primaryColor" class="form-label">主顏色</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control" id="primaryColor"
+                                placeholder="#02a568">
+                            <div id="primaryColorPreview" class="color-preview"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="secondaryColor" class="form-label">副顏色</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control" id="secondaryColor"
+                                placeholder="#e6f7f0">
+                            <div id="secondaryColorPreview" class="color-preview"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="imageCount" class="form-label">桌機排列</label>
+                        <select class="form-control form-control" id="imageCount">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- 顯示選項區 -->
+                <div class="row mb-3">
+                    <div class="col-lg-6 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="showTitle" checked>
+                            <label class="form-check-label" for="showTitle">顯示標題和日期</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="showFooter" checked>
+                            <label class="form-check-label" for="showFooter">顯示底部 Footer</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- 邊界調整區 -->
+                <div class="row mb-3">
+                    <div class="col-lg-12">
+                        <label for="contentPadding" class="form-label">
+                            內容邊界：<span id="paddingValue">10</span>px
+                        </label>
+                        <input type="range" class="form-range" id="contentPadding" min="0" max="50" value="10">
+                    </div>
+                </div>
+                <!-- 背景設定區 -->
+                <div class="row mb-3">
+                    <div class="col-lg-12">
+                        <label class="form-label">背景設定</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="bgType" id="bgDots" value="dots" checked>
+                            <label class="btn btn-outline-secondary" for="bgDots">點點背景</label>
+
+                            <input type="radio" class="btn-check" name="bgType" id="bgColor" value="color">
+                            <label class="btn btn-outline-secondary" for="bgColor">純色</label>
+
+                            <input type="radio" class="btn-check" name="bgType" id="bgImage" value="image">
+                            <label class="btn btn-outline-secondary" for="bgImage">自訂圖片</label>
+                        </div>
+                    </div>
+                    <!-- 純色選擇器（條件顯示）-->
+                    <div class="col-lg-6 mt-2" id="bgColorPicker" style="display:none;">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="bgColorValue" placeholder="#FFFFFF">
+                            <div id="bgColorPreview" class="color-preview" style="background-color: #FFFFFF;"></div>
+                        </div>
+                    </div>
+                    <!-- 背景圖片上傳（條件顯示）-->
+                    <div class="col-lg-12 mt-2" id="bgImageUpload" style="display:none;">
+                        <input type="file" class="form-control" id="bgImageFile" accept="image/*">
+                        <div class="input-group mt-2">
+                            <input type="url" class="form-control" id="bgImageUrl" placeholder="或貼上圖片網址">
+                            <button type="button" class="btn btn-primary" onclick="setBgImageFromUrl()">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                        <div id="bgImagePreview" class="mt-2" style="display:none;">
+                            <img id="bgImagePreviewImg" style="max-width: 100%; max-height: 100px; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+                <!-- 圖片排列設定 -->
+                <div class="row mb-3">
+                    <div class="col-lg-6 mb-2">
+                        <label class="form-label">圖片排列方向</label>
+                        <select class="form-control" id="imageLayout">
+                            <option value="horizontal">左右排列（水平）</option>
+                            <option value="vertical">上下排列（垂直）</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="imageGap" checked>
+                            <label class="form-check-label" for="imageGap">圖片之間有間距</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- 圖片上傳區 -->
+                <div class="row mb-3">
+                    <div class="col-lg">
+                        <label for="upload" class="form-label">上傳圖片（可多選）</label>
+                        <input type="file" class="form-control form-control" id="upload" accept="image/*" multiple>
+
+                        <!-- 圖片網址輸入區 -->
+                        <div class="mt-3">
+                            <label for="imageUrl" class="form-label">或直接貼上圖片網址</label>
+                            <div class="input-group">
+                                <input type="url" class="form-control" id="imageUrl"
+                                    placeholder="https://example.com/image.jpg">
+                                <button type="button" class="btn btn-primary" onclick="addImageFromUrl()">
+                                    <i class="fas fa-plus"></i> 新增
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="imageList" class="row mt-3"></div>
+                    </div>
+                </div>
+                <!-- URL顯示區 -->
+                <div class="row mb-3" hidden>
+                    <div class="col-lg-6">
+                        <label for="url" class="form-label">公告網址</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control" id="url" readonly>
+                            <button type="button" class="copy-btn btn btn-primary" onclick="copyToClipboard()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="lineurl" class="form-label">LINE圖文網址</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control" id="lineurl" readonly>
+                            <button type="button" class="copy-btn btn btn-primary" onclick="copyToClipboard2()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 解碼 Modal -->
+                <div class="modal fade" id="decodeModal" tabindex="-1" aria-labelledby="decodeModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="decodeModalLabel">編輯歷史紀錄</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" id="decodedUrlInput" class="form-control" placeholder="貼上連結">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="decodeAndApplyData()">確認</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 預覽區域 -->
+        <div id="right-column" class="col-lg-8 col-12 col-scrollable right-column">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!-- 左側元素 -->
+                    <div class="d-flex align-items-center">
+                        <h2>公告網頁預覽</h2>
+                        <select class="form-control form-control" id="scale"
+                            style="width: auto; display: inline-block; margin-left: 20px;">
+                            <option value="0.5">桌機</option>
+                            <option value="0.75">平板</option>
+                            <option value="1" selected>手機</option>
+                        </select>
+                    </div>
+                    <!-- 右側按鈕 -->
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-outline-success" style="margin-left: 8px;" onclick="copyToClipboard()"><i
+                                class="far fa-copy"></i>公告網址</button>
+                        <button class="btn btn-outline-success" style="margin-left: 8px;"
+                            onclick="copyToClipboard2()"><i class="far fa-copy"></i>Line網址</button>
+                    </div>
+                </div>
+                <div id="previewSection">
+                    <div class="preview-container" id="previewContainer">
+                        <div class="device-simulator mobile" id="deviceSimulator">
+                            <div class="device-label" id="deviceLabel">iPhone 14 Pro (390×844)</div>
+                            <div class="device-screen mobile" id="deviceScreen">
+                                <iframe id="previewIframe"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- 引入lz-string庫用於URL壓縮 -->
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+    <script>
+        // 當DOM完全加載後執行
+        document.addEventListener('DOMContentLoaded', function () {
+            // 設置日期輸入框的初始值為今天
+            document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+
+            // 為圖片上傳input添加事件監聽器
+            document.getElementById('upload').addEventListener('change', function (event) {
+                const files = event.target.files;
+                if (files.length > 0) {
+                    Array.from(files).forEach(file => {
+                        uploadImageToImgur(file);
+                    });
+                }
+            });
+
+            // 為各個輸入元素添加事件監聽器，當值變化時更新URL
+            document.getElementById('title').addEventListener('input', updateUrl);
+            document.getElementById('date').addEventListener('input', updateUrl);
+            document.getElementById('primaryColor').addEventListener('input', updatePrimaryColor);
+            document.getElementById('secondaryColor').addEventListener('input', updateSecondaryColor);
+            document.getElementById('imageCount').addEventListener('input', updateUrl);
+            document.getElementById('scale').addEventListener('input', updateScale);
+
+            // 為圖片網址輸入框添加 Enter 鍵支援
+            document.getElementById('imageUrl').addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addImageFromUrl();
+                }
+            });
+
+            // 初始化顏色預覽
+            updatePrimaryColor();
+            updateSecondaryColor();
+
+            // 初始化Sortable.js，使圖片列表可拖拽排序
+            new Sortable(document.getElementById('imageList'), {
+                animation: 150,
+                ghostClass: 'blue-background-class',
+                onEnd: function () {
+                    updateImageOrder();
+                }
+            });
+
+            // === 新增控制項的事件監聽器 ===
+            // 顯示選項
+            document.getElementById('showTitle').addEventListener('change', updateUrl);
+            document.getElementById('showFooter').addEventListener('change', updateUrl);
+
+            // 邊界調整
+            document.getElementById('contentPadding').addEventListener('input', function () {
+                document.getElementById('paddingValue').textContent = this.value;
+                updateUrl();
+            });
+
+            // 背景類型切換
+            document.querySelectorAll('input[name="bgType"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    updateBgTypeUI();
+                    updateUrl();
+                });
+            });
+
+            // 背景顏色
+            document.getElementById('bgColorValue').addEventListener('input', function () {
+                let color = this.value;
+                if (color && !color.startsWith('#')) {
+                    color = '#' + color;
+                    this.value = color;
+                }
+                document.getElementById('bgColorPreview').style.backgroundColor = color;
+                updateUrl();
+            });
+
+            // 背景圖片上傳
+            document.getElementById('bgImageFile').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    uploadBgImageToImgur(file);
+                }
+            });
+
+            // 圖片排列
+            document.getElementById('imageLayout').addEventListener('change', updateUrl);
+            document.getElementById('imageGap').addEventListener('change', updateUrl);
+
+            updateScale();
+        });
+
+        // 存儲上傳圖片的ID
+        let imageIds = [];
+
+        // 存儲背景圖片URL
+        let currentBgImageUrl = '';
+
+        // 更新背景類型UI
+        function updateBgTypeUI() {
+            const bgType = document.querySelector('input[name="bgType"]:checked').value;
+            document.getElementById('bgColorPicker').style.display = bgType === 'color' ? 'block' : 'none';
+            document.getElementById('bgImageUpload').style.display = bgType === 'image' ? 'block' : 'none';
+        }
+
+        // 從URL設定背景圖片
+        function setBgImageFromUrl() {
+            const url = document.getElementById('bgImageUrl').value.trim();
+            if (!url) {
+                alert('請輸入圖片網址');
+                return;
+            }
+
+            // 測試圖片是否可載入
+            const testImg = new Image();
+            testImg.onload = function () {
+                currentBgImageUrl = url;
+                document.getElementById('bgImagePreview').style.display = 'block';
+                document.getElementById('bgImagePreviewImg').src = url;
+                document.getElementById('bgImageUrl').value = '';
+                updateUrl();
+            };
+            testImg.onerror = function () {
+                alert('無法載入此圖片，請檢查網址');
+            };
+            testImg.src = url;
+        }
+
+        // 上傳背景圖片到Imgur
+        function uploadBgImageToImgur(file) {
+            const clientId = "a0a92307b538c2f";
+
+            // 顯示上傳狀態
+            const previewDiv = document.getElementById('bgImagePreview');
+            previewDiv.style.display = 'block';
+            previewDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上傳中...';
+
+            fileToBase64(file)
+                .then((base64) => {
+                    return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image: base64,
+                            clientId: clientId
+                        }),
+                    });
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        currentBgImageUrl = result.data.link;
+                        previewDiv.innerHTML = `<img id="bgImagePreviewImg" src="${result.data.link}" style="max-width: 100%; max-height: 100px; border-radius: 8px;">`;
+                        updateUrl();
+                    } else {
+                        previewDiv.innerHTML = '上傳失敗：' + (result.error || '未知錯誤');
+                    }
+                })
+                .catch(error => {
+                    previewDiv.innerHTML = '上傳失敗：' + error.message;
+                });
+        }
+
+        // 上傳圖片到Imgur (透過 Cloudflare Worker 代理)
+        function uploadImageToImgur(file) {
+            // 創建並顯示上傳狀態元素
+            const saveStatus = document.createElement('div');
+            saveStatus.classList.add('saveStatus');
+            saveStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上傳中...';
+            document.getElementById('imageList').appendChild(saveStatus);
+
+            // Imgur API客戶端ID
+            const clientId = "a0a92307b538c2f";
+
+            // 將圖片轉換為 Base64
+            fileToBase64(file)
+                .then((base64) => {
+                    return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image: base64,
+                            clientId: clientId
+                        }),
+                        muteHttpExceptions: true,
+                    });
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // 如果上傳成功，添加圖片ID到數組
+                        imageIds.push(result.data.id);
+                        // 創建圖片預覽元素
+                        const imgContainer = document.createElement('div');
+                        imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
+                        imgContainer.dataset.imageId = result.data.id;
+                        const img = document.createElement('img');
+                        img.src = result.data.link;
+                        img.classList.add('image-preview');
+                        // 創建刪除按鈕
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.classList.add('delete-btn');
+                        deleteBtn.innerHTML = '&times;';
+                        deleteBtn.onclick = () => {
+                            const index = imageIds.indexOf(result.data.id);
+                            if (index > -1) {
+                                imageIds.splice(index, 1);
+                            }
+                            imgContainer.remove();
+                            updateUrl();
+                        };
+                        imgContainer.appendChild(img);
+                        imgContainer.appendChild(deleteBtn);
+                        document.getElementById('imageList').appendChild(imgContainer);
+                    } else {
+                        alert("圖片上傳失敗，請重試！錯誤: " + (result.error || "未知錯誤"));
+                    }
+                    saveStatus.remove();
+                    updateUrl();
+                    updateScale();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    saveStatus.innerHTML = "上傳失敗: " + error.message;
+                })
+                .finally(() => {
+                    updateScale();
+                });
+        }
+
+        // 將檔案轉換為 Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    // 移除 data:image/jpeg;base64, 前綴，只保留 base64 字符串
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // 從圖片網址新增圖片
+        function addImageFromUrl() {
+            const urlInput = document.getElementById('imageUrl');
+            const imageUrl = urlInput.value.trim();
+
+            // 驗證網址
+            if (!imageUrl) {
+                alert('請輸入圖片網址');
+                return;
+            }
+
+            // 簡單的URL格式驗證
+            try {
+                new URL(imageUrl);
+            } catch (e) {
+                alert('請輸入有效的網址格式');
+                return;
+            }
+
+            // 驗證是否為圖片網址
+            if (!isImageUrl(imageUrl)) {
+                alert('請輸入有效的圖片網址（支援 .jpg, .jpeg, .png, .gif, .webp, .bmp, .svg）');
+                return;
+            }
+
+            // 創建並顯示載入狀態
+            const saveStatus = document.createElement('div');
+            saveStatus.classList.add('saveStatus');
+            saveStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 載入圖片中...';
+            document.getElementById('imageList').appendChild(saveStatus);
+
+            // 測試圖片是否可以載入
+            const testImg = new Image();
+            testImg.crossOrigin = "anonymous";
+
+            testImg.onload = function () {
+                // 圖片載入成功，新增到列表
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
+                imgContainer.dataset.imageId = imageUrl; // 直接使用完整URL作為ID
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.classList.add('image-preview');
+
+                // 創建刪除按鈕
+                const deleteBtn = document.createElement('button');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.onclick = () => {
+                    const index = imageIds.indexOf(imageUrl);
+                    if (index > -1) {
+                        imageIds.splice(index, 1);
+                    }
+                    imgContainer.remove();
+                    updateUrl();
+                };
+
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(deleteBtn);
+                document.getElementById('imageList').appendChild(imgContainer);
+
+                // 新增到圖片ID陣列（現在支援完整URL）
+                imageIds.push(imageUrl);
+
+                // 清空輸入框
+                urlInput.value = '';
+
+                // 移除載入狀態並更新
+                saveStatus.remove();
+                updateUrl();
+                updateScale();
+            };
+
+            testImg.onerror = function () {
+                // 圖片載入失敗
+                alert('無法載入此圖片，請檢查網址是否正確');
+                saveStatus.remove();
+            };
+
+            // 開始載入圖片
+            testImg.src = imageUrl;
+        }
+
+        // 驗證是否為圖片網址
+        function isImageUrl(url) {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+            const lowerUrl = url.toLowerCase();
+            return imageExtensions.some(ext => lowerUrl.includes(ext)) ||
+                lowerUrl.includes('imgur.com') ||
+                lowerUrl.includes('i.imgur.com');
+        }
+
+        // 更新圖片順序
+        function updateImageOrder() {
+            imageIds = Array.from(document.getElementById('imageList').children)
+                .map(container => container.dataset.imageId);
+            updateUrl();
+        }
+
+        // 更新主顏色
+        function updatePrimaryColor() {
+            const primaryColorInput = document.getElementById('primaryColor');
+            let primaryColor = primaryColorInput.value;
+            if (primaryColor && !primaryColor.startsWith('#')) {
+                primaryColor = '#' + primaryColor;
+            }
+            document.getElementById('primaryColorPreview').style.backgroundColor = primaryColor;
+            primaryColorInput.value = primaryColor;
+            updateUrl();
+        }
+
+        // 更新副顏色
+        function updateSecondaryColor() {
+            const secondaryColorInput = document.getElementById('secondaryColor');
+            let secondaryColor = secondaryColorInput.value;
+            if (secondaryColor && !secondaryColor.startsWith('#')) {
+                secondaryColor = '#' + secondaryColor;
+            }
+            document.getElementById('secondaryColorPreview').style.backgroundColor = secondaryColor;
+            secondaryColorInput.value = secondaryColor;
+            updateUrl();
+        }
+
+        // 更新URL
+        function updateUrl() {
+            const title = document.getElementById('title').value;
+            const date = document.getElementById('date').value.replace(/-/g, '');
+            const primaryColor = document.getElementById('primaryColor').value || '#02a568';
+            const secondaryColor = document.getElementById('secondaryColor').value || '#e6f7f0';
+            const imageCount = document.getElementById('imageCount').value;
+
+            // 新增參數
+            const showTitle = document.getElementById('showTitle').checked ? '1' : '0';
+            const showFooter = document.getElementById('showFooter').checked ? '1' : '0';
+            const contentPadding = document.getElementById('contentPadding').value;
+            const bgType = document.querySelector('input[name="bgType"]:checked').value;
+            const bgColorValue = document.getElementById('bgColorValue').value;
+            const imageLayout = document.getElementById('imageLayout').value;
+            const imageGap = document.getElementById('imageGap').checked ? '1' : '0';
+
+            // 構建URL參數
+            let url = `title=${encodeURIComponent(title)}&date=${date}&primaryColor=${encodeURIComponent(primaryColor)}&secondaryColor=${encodeURIComponent(secondaryColor)}&imageCount=${imageCount}`;
+
+            // 新增參數（使用縮寫以節省URL長度）
+            url += `&st=${showTitle}&sf=${showFooter}&cp=${contentPadding}&bt=${bgType}&il=${imageLayout}&ig=${imageGap}`;
+
+            // 背景顏色（只在純色模式時加入）
+            if (bgType === 'color' && bgColorValue) {
+                url += `&bc=${encodeURIComponent(bgColorValue)}`;
+            }
+
+            // 背景圖片URL（只在圖片模式時加入）
+            if (bgType === 'image' && currentBgImageUrl) {
+                url += `&bi=${encodeURIComponent(currentBgImageUrl)}`;
+            }
+
+            if (imageIds.length > 0) {
+                // 處理混合的圖片來源：Imgur ID 和完整 URL
+                const encodedImageIds = imageIds.map(id => {
+                    // 如果是完整 URL（以 http 開頭），則進行編碼
+                    if (id.startsWith('http')) {
+                        return encodeURIComponent(id);
+                    }
+                    // 如果是 Imgur ID，保持原樣
+                    return id;
+                });
+                url += `&id=${encodedImageIds.join(',')}`;
+            }
+            // 壓縮URL
+            const compressedUrl = LZString.compressToEncodedURIComponent(url);
+            // 更新URL顯示
+            document.getElementById('url').value = `https://news.wentzao.com/?data=${compressedUrl}`;
+            document.getElementById('lineurl').value = `https://liff.line.me/1660786685-j636WZpM?data=${compressedUrl}`;
+            updatePreview();
+        }
+
+        // 更新預覽
+        function updatePreview() {
+            const previewIframe = document.getElementById('previewIframe');
+            const previewUrl = document.getElementById('url').value;
+
+            // 只有當URL發生變化時才更新iframe的src
+            if (previewIframe.src !== previewUrl) {
+                previewIframe.src = previewUrl;
+            }
+        }
+
+        // 更新預覽縮放比例
+        function updateScale() {
+            const scale = document.getElementById('scale').value;
+            const deviceSimulator = document.getElementById('deviceSimulator');
+            const deviceScreen = document.getElementById('deviceScreen');
+            const deviceLabel = document.getElementById('deviceLabel');
+            const previewContainer = document.getElementById('previewContainer');
+
+            // 移除所有設備類別
+            deviceSimulator.className = 'device-simulator';
+            deviceScreen.className = 'device-screen';
+
+            let containerScale = 1;
+
+            if (scale === '1') {
+                // 手機模擬器
+                deviceSimulator.classList.add('mobile');
+                deviceScreen.classList.add('mobile');
+                deviceLabel.textContent = 'iPhone 14 Pro (390×844)';
+                containerScale = 0.6; // 縮小以適應視窗
+            } else if (scale === '0.75') {
+                // 平板模擬器
+                deviceSimulator.classList.add('tablet');
+                deviceScreen.classList.add('tablet');
+                deviceLabel.textContent = 'iPad Pro (820×1180)';
+                containerScale = 0.4; // 縮小以適應視窗
+            } else {
+                // 桌機模擬器
+                deviceSimulator.classList.add('desktop');
+                deviceScreen.classList.add('desktop');
+                deviceLabel.textContent = 'Desktop (1400×900)';
+                containerScale = 0.45; // 縮小以適應視窗
+            }
+
+            // 應用容器縮放
+            previewContainer.style.transform = `scale(${containerScale})`;
+
+            updatePreview();
+        }
+
+        // 複製公告網址到剪貼板
+        function copyToClipboard() {
+            const url = document.getElementById('url').value;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('網址已複製！');
+            });
+        }
+
+        // 複製LINE圖文網址到剪貼板
+        function copyToClipboard2() {
+            const url = document.getElementById('lineurl').value;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('網址已複製！');
+            });
+        }
+
+        function formatDateString(dateString) {
+            if (dateString.length === 8) {
+                return dateString.slice(0, 4) + '-' + dateString.slice(4, 6) + '-' + dateString.slice(6, 8);
+            }
+            return dateString;
+        }
+
+        // 解碼並應用數據
+        function decodeAndApplyData() {
+            const input = document.getElementById('decodedUrlInput');
+            const data = LZString.decompressFromEncodedURIComponent(input.value.split('?data=')[1]);
+            const params = new URLSearchParams(data);
+
+            // 更新頁面元素（原有參數）
+            document.getElementById('title').value = params.get('title') || '';
+            document.getElementById('date').value = formatDateString(params.get('date') || '');
+            document.getElementById('primaryColor').value = params.get('primaryColor') || '';
+            document.getElementById('secondaryColor').value = params.get('secondaryColor') || '';
+            document.getElementById('imageCount').value = params.get('imageCount') || '3';
+
+            // 新增參數（向下相容：使用預設值）
+            document.getElementById('showTitle').checked = params.get('st') !== '0';
+            document.getElementById('showFooter').checked = params.get('sf') !== '0';
+            document.getElementById('contentPadding').value = params.get('cp') || '10';
+            document.getElementById('paddingValue').textContent = params.get('cp') || '10';
+
+            // 背景類型
+            const bgType = params.get('bt') || 'dots';
+            document.querySelector(`input[name="bgType"][value="${bgType}"]`).checked = true;
+            updateBgTypeUI();
+
+            // 背景顏色
+            if (params.get('bc')) {
+                document.getElementById('bgColorValue').value = decodeURIComponent(params.get('bc'));
+                document.getElementById('bgColorPreview').style.backgroundColor = decodeURIComponent(params.get('bc'));
+            }
+
+            // 背景圖片
+            if (params.get('bi')) {
+                currentBgImageUrl = decodeURIComponent(params.get('bi'));
+                document.getElementById('bgImagePreview').style.display = 'block';
+                document.getElementById('bgImagePreviewImg').src = currentBgImageUrl;
+            }
+
+            // 圖片排列
+            document.getElementById('imageLayout').value = params.get('il') || 'horizontal';
+            document.getElementById('imageGap').checked = params.get('ig') !== '0';
+
+            // 解碼圖片 ID
+            const imageIdsDecoded = params.get('id');
+            if (imageIdsDecoded) {
+                const rawImageIds = imageIdsDecoded.split(',');
+                imageIds = rawImageIds.map(id => {
+                    // 如果是編碼過的 URL，進行解碼
+                    if (id.includes('%')) {
+                        try {
+                            const decodedId = decodeURIComponent(id);
+                            // 如果解碼後是完整 URL，返回解碼後的結果
+                            if (decodedId.startsWith('http')) {
+                                return decodedId;
+                            }
+                        } catch (e) {
+                            // 解碼失敗，可能不是編碼的 URL
+                        }
+                    }
+                    // 其他情況返回原始 ID
+                    return id;
+                });
+
+                imageIds.forEach(id => {
+                    if (id.startsWith('http')) {
+                        // 完整 URL，直接載入
+                        fetchImageFromUrl(id);
+                    } else {
+                        // Imgur ID，使用現有函數
+                        fetchImageFromImgur(id);
+                    }
+                });
+            }
+
+            updatePrimaryColor()
+            updateSecondaryColor()
+
+            // 關閉 Modal
+            const modalElement = document.querySelector('#decodeModal');
+            var modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+        }
+
+        function fetchImageFromImgur(id) {
+            const clientId = "a0a92307b538c2f";
+            fetch(`https://api.imgur.com/3/image/${id}`, {
+                headers: {
+                    Authorization: "Client-ID " + clientId,
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const imgContainer = document.createElement('div');
+                        imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
+                        imgContainer.dataset.imageId = data.data.id;
+
+                        const img = document.createElement('img');
+                        img.src = data.data.link;
+                        img.classList.add('image-preview');
+
+                        // 創建刪除按鈕
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.classList.add('delete-btn');
+                        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        deleteBtn.onclick = () => {
+                            imgContainer.remove();  // 移除圖片容器
+                            const index = imageIds.indexOf(data.data.id);
+                            if (index > -1) {
+                                imageIds.splice(index, 1);  // 移除圖片ID
+                            }
+                            updateUrl();  // 更新 URL
+                            updatePreview();  // 更新預覽
+                        };
+
+                        // 將圖片和刪除按鈕添加到容器中
+                        imgContainer.appendChild(img);
+                        imgContainer.appendChild(deleteBtn);
+                        document.getElementById('imageList').appendChild(imgContainer);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading image from Imgur:", error);
+                })
+                .finally(() => {
+                    updateUrl();
+                    updatePreview();  // 確保更新預覽，無論加載成功或失敗
+                });
+        }
+
+        // 從完整 URL 載入圖片
+        function fetchImageFromUrl(imageUrl) {
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
+            imgContainer.dataset.imageId = imageUrl;
+
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.classList.add('image-preview');
+
+            // 創建刪除按鈕
+            const deleteBtn = document.createElement('button');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.onclick = () => {
+                imgContainer.remove();  // 移除圖片容器
+                const index = imageIds.indexOf(imageUrl);
+                if (index > -1) {
+                    imageIds.splice(index, 1);  // 移除圖片ID
+                }
+                updateUrl();  // 更新 URL
+                updatePreview();  // 更新預覽
+            };
+
+            // 將圖片和刪除按鈕添加到容器中
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(deleteBtn);
+            document.getElementById('imageList').appendChild(imgContainer);
+
+            updateUrl();
+            updatePreview();
+        }
+    </script>
+    <!-- <script src=script.js></script> -->
+</body>
+
+</html>
