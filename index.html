@@ -256,66 +256,6 @@
             /* 右側欄位隱藏滾動條 */
         }
 
-        /* Range Slider 自訂樣式 */
-        .custom-range {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #adb5bd;
-            border-radius: 4px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        /* WebKit 瀏覽器的滑桿軌道 */
-        .custom-range::-webkit-slider-runnable-track {
-            height: 8px;
-            background: #adb5bd;
-            border-radius: 4px;
-        }
-
-        /* WebKit 瀏覽器的滑桿滑塊 */
-        .custom-range::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #0d6efd;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            margin-top: -6px;
-        }
-
-        .custom-range::-webkit-slider-thumb:hover {
-            background: #0b5ed7;
-            transform: scale(1.1);
-        }
-
-        /* Firefox 瀏覽器的滑桿軌道 */
-        .custom-range::-moz-range-track {
-            height: 8px;
-            background: #adb5bd;
-            border-radius: 4px;
-        }
-
-        /* Firefox 瀏覽器的滑桿滑塊 */
-        .custom-range::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #0d6efd;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .custom-range::-moz-range-thumb:hover {
-            background: #0b5ed7;
-        }
-
         /* 響應式設計 */
         @media (max-width: 767px) {
             .container {
@@ -384,81 +324,6 @@
                         </select>
                     </div>
                 </div>
-                <!-- 顯示選項區 -->
-                <div class="row mb-3">
-                    <div class="col-lg-6 mb-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="showTitle" checked>
-                            <label class="form-check-label" for="showTitle">顯示標題和日期</label>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="showFooter" checked>
-                            <label class="form-check-label" for="showFooter">顯示底部 Footer</label>
-                        </div>
-                    </div>
-                </div>
-                <!-- 邊界調整區 -->
-                <div class="row mb-3">
-                    <div class="col-lg-6 mb-2">
-                        <label for="paddingX" class="form-label">
-                            左右邊界：<span id="paddingXValue">10</span>px
-                        </label>
-                        <input type="range" class="custom-range" id="paddingX" min="0" max="50" value="10">
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="paddingY" class="form-label">
-                            上下邊界：<span id="paddingYValue">10</span>px
-                        </label>
-                        <input type="range" class="custom-range" id="paddingY" min="0" max="50" value="10">
-                    </div>
-                </div>
-                <!-- 背景設定區 -->
-                <div class="row mb-3">
-                    <div class="col-lg-12">
-                        <label class="form-label">背景設定</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="bgType" id="bgDots" value="dots" checked>
-                            <label class="btn btn-outline-secondary" for="bgDots">點點背景</label>
-
-                            <input type="radio" class="btn-check" name="bgType" id="bgColor" value="color">
-                            <label class="btn btn-outline-secondary" for="bgColor">純色</label>
-
-                            <input type="radio" class="btn-check" name="bgType" id="bgImage" value="image">
-                            <label class="btn btn-outline-secondary" for="bgImage">自訂圖片</label>
-                        </div>
-                    </div>
-                    <!-- 純色選擇器（條件顯示）-->
-                    <div class="col-lg-6 mt-2" id="bgColorPicker" style="display:none;">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="bgColorValue" placeholder="#FFFFFF">
-                            <div id="bgColorPreview" class="color-preview" style="background-color: #FFFFFF;"></div>
-                        </div>
-                    </div>
-                    <!-- 背景圖片上傳（條件顯示）-->
-                    <div class="col-lg-12 mt-2" id="bgImageUpload" style="display:none;">
-                        <input type="file" class="form-control" id="bgImageFile" accept="image/*">
-                        <div class="input-group mt-2">
-                            <input type="url" class="form-control" id="bgImageUrl" placeholder="或貼上圖片網址">
-                            <button type="button" class="btn btn-primary" onclick="setBgImageFromUrl()">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                        <div id="bgImagePreview" class="mt-2" style="display:none;">
-                            <img id="bgImagePreviewImg" style="max-width: 100%; max-height: 100px; border-radius: 8px;">
-                        </div>
-                    </div>
-                </div>
-                <!-- 圖片間距設定 -->
-                <div class="row mb-3">
-                    <div class="col-lg-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="imageGap" checked>
-                            <label class="form-check-label" for="imageGap">圖片之間有間距</label>
-                        </div>
-                    </div>
-                </div>
                 <!-- 圖片上傳區 -->
                 <div class="row mb-3">
                     <div class="col-lg">
@@ -478,6 +343,93 @@
                         </div>
 
                         <div id="imageList" class="row mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- ========== 顯示選項 ========== -->
+                <hr class="my-4">
+                <h5>📋 顯示選項</h5>
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="showTitle" checked>
+                            <label class="form-check-label" for="showTitle">顯示標題和日期</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="showFooter" checked>
+                            <label class="form-check-label" for="showFooter">顯示底部 Footer</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 螢幕邊界調整 ========== -->
+                <hr class="my-4">
+                <h5>🖼️ 螢幕邊界</h5>
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <label for="screenPaddingVertical" class="form-label">
+                            上下邊界：<span id="screenPaddingVerticalValue">10</span>px
+                        </label>
+                        <input type="range" class="form-range" id="screenPaddingVertical" min="0" max="100" value="10">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="screenPaddingHorizontal" class="form-label">
+                            左右邊界：<span id="screenPaddingHorizontalValue">10</span>px
+                        </label>
+                        <input type="range" class="form-range" id="screenPaddingHorizontal" min="0" max="100"
+                            value="10">
+                    </div>
+                </div>
+
+                <!-- ========== 背景設定 ========== -->
+                <hr class="my-4">
+                <h5>🎨 背景設定</h5>
+                <div class="row mb-3">
+                    <div class="col-lg-12">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="bgType" id="bgDots" value="dots" checked>
+                            <label class="btn btn-outline-secondary" for="bgDots">點點背景</label>
+
+                            <input type="radio" class="btn-check" name="bgType" id="bgColor" value="color">
+                            <label class="btn btn-outline-secondary" for="bgColor">純色</label>
+
+                            <input type="radio" class="btn-check" name="bgType" id="bgImage" value="image">
+                            <label class="btn btn-outline-secondary" for="bgImage">自訂圖片</label>
+                        </div>
+                    </div>
+                    <!-- 純色選擇器（條件顯示）-->
+                    <div class="col-lg-6 mt-2" id="bgColorPicker" style="display:none;">
+                        <label class="form-label">背景顏色</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="bgColorValue" placeholder="#FFFFFF">
+                            <div id="bgColorPreview" class="color-preview" style="background-color: #FFFFFF;"></div>
+                        </div>
+                    </div>
+                    <!-- 背景圖片上傳（條件顯示）-->
+                    <div class="col-lg-12 mt-2" id="bgImageUpload" style="display:none;">
+                        <label class="form-label">背景圖片</label>
+                        <input type="file" class="form-control" id="bgImageFile" accept="image/*">
+                        <input type="url" class="form-control mt-2" id="bgImageUrl" placeholder="或貼上圖片網址">
+                    </div>
+                </div>
+
+                <!-- ========== 圖片間距調整 ========== -->
+                <hr class="my-4">
+                <h5>🖼️ 圖片間距</h5>
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <label for="imageGapVertical" class="form-label">
+                            上下間距：<span id="imageGapVerticalValue">10</span>px
+                        </label>
+                        <input type="range" class="form-range" id="imageGapVertical" min="0" max="50" value="10">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="imageGapHorizontal" class="form-label">
+                            左右間距：<span id="imageGapHorizontalValue">10</span>px
+                        </label>
+                        <input type="range" class="form-range" id="imageGapHorizontal" min="0" max="50" value="10">
                     </div>
                 </div>
                 <!-- URL顯示區 -->
@@ -605,22 +557,31 @@
                 }
             });
 
-            // === 新增控制項的事件監聽器 ===
-            // 顯示選項
+            // 新增：顯示選項事件監聽器
             document.getElementById('showTitle').addEventListener('change', updateUrl);
             document.getElementById('showFooter').addEventListener('change', updateUrl);
 
-            // 邊界調整（左右/上下）
-            document.getElementById('paddingX').addEventListener('input', function () {
-                document.getElementById('paddingXValue').textContent = this.value;
+            // 新增：螢幕邊界滑桿事件監聽器
+            document.getElementById('screenPaddingVertical').addEventListener('input', function () {
+                document.getElementById('screenPaddingVerticalValue').textContent = this.value;
                 updateUrl();
             });
-            document.getElementById('paddingY').addEventListener('input', function () {
-                document.getElementById('paddingYValue').textContent = this.value;
+            document.getElementById('screenPaddingHorizontal').addEventListener('input', function () {
+                document.getElementById('screenPaddingHorizontalValue').textContent = this.value;
                 updateUrl();
             });
 
-            // 背景類型切換
+            // 新增：圖片間距滑桿事件監聯器
+            document.getElementById('imageGapVertical').addEventListener('input', function () {
+                document.getElementById('imageGapVerticalValue').textContent = this.value;
+                updateUrl();
+            });
+            document.getElementById('imageGapHorizontal').addEventListener('input', function () {
+                document.getElementById('imageGapHorizontalValue').textContent = this.value;
+                updateUrl();
+            });
+
+            // 新增：背景類型切換事件監聽器
             document.querySelectorAll('input[name="bgType"]').forEach(radio => {
                 radio.addEventListener('change', function () {
                     updateBgTypeUI();
@@ -628,7 +589,7 @@
                 });
             });
 
-            // 背景顏色
+            // 新增：背景顏色輸入事件監聽器
             document.getElementById('bgColorValue').addEventListener('input', function () {
                 let color = this.value;
                 if (color && !color.startsWith('#')) {
@@ -639,7 +600,10 @@
                 updateUrl();
             });
 
-            // 背景圖片上傳
+            // 新增：背景圖片網址事件監聽器
+            document.getElementById('bgImageUrl').addEventListener('input', updateUrl);
+
+            // 新增：背景圖片上傳事件監聽器
             document.getElementById('bgImageFile').addEventListener('change', function (event) {
                 const file = event.target.files[0];
                 if (file) {
@@ -647,84 +611,11 @@
                 }
             });
 
-            // 圖片間距
-            document.getElementById('imageGap').addEventListener('change', updateUrl);
-
             updateScale();
         });
 
         // 存儲上傳圖片的ID
         let imageIds = [];
-
-        // 存儲背景圖片URL
-        let currentBgImageUrl = '';
-
-        // 更新背景類型UI
-        function updateBgTypeUI() {
-            const bgType = document.querySelector('input[name="bgType"]:checked').value;
-            document.getElementById('bgColorPicker').style.display = bgType === 'color' ? 'block' : 'none';
-            document.getElementById('bgImageUpload').style.display = bgType === 'image' ? 'block' : 'none';
-        }
-
-        // 從URL設定背景圖片
-        function setBgImageFromUrl() {
-            const url = document.getElementById('bgImageUrl').value.trim();
-            if (!url) {
-                alert('請輸入圖片網址');
-                return;
-            }
-
-            // 測試圖片是否可載入
-            const testImg = new Image();
-            testImg.onload = function () {
-                currentBgImageUrl = url;
-                document.getElementById('bgImagePreview').style.display = 'block';
-                document.getElementById('bgImagePreviewImg').src = url;
-                document.getElementById('bgImageUrl').value = '';
-                updateUrl();
-            };
-            testImg.onerror = function () {
-                alert('無法載入此圖片，請檢查網址');
-            };
-            testImg.src = url;
-        }
-
-        // 上傳背景圖片到Imgur
-        function uploadBgImageToImgur(file) {
-            const clientId = "a0a92307b538c2f";
-
-            // 顯示上傳狀態
-            const previewDiv = document.getElementById('bgImagePreview');
-            previewDiv.style.display = 'block';
-            previewDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上傳中...';
-
-            fileToBase64(file)
-                .then((base64) => {
-                    return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            image: base64,
-                            clientId: clientId
-                        }),
-                    });
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        currentBgImageUrl = result.data.link;
-                        previewDiv.innerHTML = `<img id="bgImagePreviewImg" src="${result.data.link}" style="max-width: 100%; max-height: 100px; border-radius: 8px;">`;
-                        updateUrl();
-                    } else {
-                        previewDiv.innerHTML = '上傳失敗：' + (result.error || '未知錯誤');
-                    }
-                })
-                .catch(error => {
-                    previewDiv.innerHTML = '上傳失敗：' + error.message;
-                });
-        }
 
         // 上傳圖片到Imgur (透過 Cloudflare Worker 代理)
         function uploadImageToImgur(file) {
@@ -941,30 +832,35 @@
             const secondaryColor = document.getElementById('secondaryColor').value || '#e6f7f0';
             const imageCount = document.getElementById('imageCount').value;
 
-            // 新增參數
-            const showTitle = document.getElementById('showTitle').checked ? '1' : '0';
-            const showFooter = document.getElementById('showFooter').checked ? '1' : '0';
-            const paddingX = document.getElementById('paddingX').value;
-            const paddingY = document.getElementById('paddingY').value;
+            // 新增：獲取新控制項的值
+            const showTitle = document.getElementById('showTitle').checked;
+            const showFooter = document.getElementById('showFooter').checked;
+            const screenPaddingV = document.getElementById('screenPaddingVertical').value;
+            const screenPaddingH = document.getElementById('screenPaddingHorizontal').value;
             const bgType = document.querySelector('input[name="bgType"]:checked').value;
             const bgColorValue = document.getElementById('bgColorValue').value;
-            const imageGap = document.getElementById('imageGap').checked ? '1' : '0';
+            const bgImageUrl = document.getElementById('bgImageUrl').value;
+            const imageGapV = document.getElementById('imageGapVertical').value;
+            const imageGapH = document.getElementById('imageGapHorizontal').value;
 
             // 構建URL參數
             let url = `title=${encodeURIComponent(title)}&date=${date}&primaryColor=${encodeURIComponent(primaryColor)}&secondaryColor=${encodeURIComponent(secondaryColor)}&imageCount=${imageCount}`;
 
-            // 新增參數（使用縮寫以節省URL長度）
-            url += `&st=${showTitle}&sf=${showFooter}&px=${paddingX}&py=${paddingY}&bt=${bgType}&ig=${imageGap}`;
-
-            // 背景顏色（只在純色模式時加入）
-            if (bgType === 'color' && bgColorValue) {
-                url += `&bc=${encodeURIComponent(bgColorValue)}`;
+            // 新增：添加新參數（只有非預設值才加入以節省URL長度）
+            if (!showTitle) url += `&st=0`;
+            if (!showFooter) url += `&sf=0`;
+            if (screenPaddingV !== '10') url += `&spv=${screenPaddingV}`;
+            if (screenPaddingH !== '10') url += `&sph=${screenPaddingH}`;
+            if (bgType !== 'dots') {
+                url += `&bt=${bgType}`;
+                if (bgType === 'color' && bgColorValue) {
+                    url += `&bc=${encodeURIComponent(bgColorValue)}`;
+                } else if (bgType === 'image' && bgImageUrl) {
+                    url += `&bi=${encodeURIComponent(bgImageUrl)}`;
+                }
             }
-
-            // 背景圖片URL（只在圖片模式時加入）
-            if (bgType === 'image' && currentBgImageUrl) {
-                url += `&bi=${encodeURIComponent(currentBgImageUrl)}`;
-            }
+            if (imageGapV !== '10') url += `&igv=${imageGapV}`;
+            if (imageGapH !== '10') url += `&igh=${imageGapH}`;
 
             if (imageIds.length > 0) {
                 // 處理混合的圖片來源：Imgur ID 和完整 URL
@@ -1037,6 +933,67 @@
             updatePreview();
         }
 
+        // 新增：更新背景類型UI顯示
+        function updateBgTypeUI() {
+            const bgType = document.querySelector('input[name="bgType"]:checked').value;
+            const bgColorPicker = document.getElementById('bgColorPicker');
+            const bgImageUpload = document.getElementById('bgImageUpload');
+
+            // 隱藏所有條件顯示區塊
+            bgColorPicker.style.display = 'none';
+            bgImageUpload.style.display = 'none';
+
+            // 根據選擇顯示對應區塊
+            if (bgType === 'color') {
+                bgColorPicker.style.display = 'block';
+            } else if (bgType === 'image') {
+                bgImageUpload.style.display = 'block';
+            }
+        }
+
+        // 新增：上傳背景圖片到Imgur
+        function uploadBgImageToImgur(file) {
+            const clientId = "a0a92307b538c2f";
+            const bgImageUrlInput = document.getElementById('bgImageUrl');
+
+            // 顯示上傳中狀態
+            bgImageUrlInput.value = '上傳中...';
+            bgImageUrlInput.disabled = true;
+
+            fileToBase64(file)
+                .then((base64) => {
+                    return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image: base64,
+                            clientId: clientId
+                        }),
+                        muteHttpExceptions: true,
+                    });
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        bgImageUrlInput.value = result.data.link;
+                        updateUrl();
+                    } else {
+                        alert("背景圖片上傳失敗，請重試！");
+                        bgImageUrlInput.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    bgImageUrlInput.value = '';
+                    alert("上傳失敗: " + error.message);
+                })
+                .finally(() => {
+                    bgImageUrlInput.disabled = false;
+                });
+        }
+
         // 複製公告網址到剪貼板
         function copyToClipboard() {
             const url = document.getElementById('url').value;
@@ -1066,44 +1023,12 @@
             const data = LZString.decompressFromEncodedURIComponent(input.value.split('?data=')[1]);
             const params = new URLSearchParams(data);
 
-            // 更新頁面元素（原有參數）
-            document.getElementById('title').value = params.get('title') || '';
-            document.getElementById('date').value = formatDateString(params.get('date') || '');
-            document.getElementById('primaryColor').value = params.get('primaryColor') || '';
-            document.getElementById('secondaryColor').value = params.get('secondaryColor') || '';
-            document.getElementById('imageCount').value = params.get('imageCount') || '3';
-
-            // 新增參數（向下相容：使用預設值）
-            document.getElementById('showTitle').checked = params.get('st') !== '0';
-            document.getElementById('showFooter').checked = params.get('sf') !== '0';
-
-            // 邊界（支援舊版 cp 參數和新版 px/py 參數）
-            const oldPadding = params.get('cp') || '10';
-            document.getElementById('paddingX').value = params.get('px') || oldPadding;
-            document.getElementById('paddingXValue').textContent = params.get('px') || oldPadding;
-            document.getElementById('paddingY').value = params.get('py') || oldPadding;
-            document.getElementById('paddingYValue').textContent = params.get('py') || oldPadding;
-
-            // 背景類型
-            const bgType = params.get('bt') || 'dots';
-            document.querySelector(`input[name="bgType"][value="${bgType}"]`).checked = true;
-            updateBgTypeUI();
-
-            // 背景顏色
-            if (params.get('bc')) {
-                document.getElementById('bgColorValue').value = decodeURIComponent(params.get('bc'));
-                document.getElementById('bgColorPreview').style.backgroundColor = decodeURIComponent(params.get('bc'));
-            }
-
-            // 背景圖片
-            if (params.get('bi')) {
-                currentBgImageUrl = decodeURIComponent(params.get('bi'));
-                document.getElementById('bgImagePreview').style.display = 'block';
-                document.getElementById('bgImagePreviewImg').src = currentBgImageUrl;
-            }
-
-            // 圖片間距
-            document.getElementById('imageGap').checked = params.get('ig') !== '0';
+            // 更新頁面元素
+            document.getElementById('title').value = params.get('title');
+            document.getElementById('date').value = formatDateString(params.get('date'));
+            document.getElementById('primaryColor').value = params.get('primaryColor');
+            document.getElementById('secondaryColor').value = params.get('secondaryColor');
+            document.getElementById('imageCount').value = params.get('imageCount');
 
             // 解碼圖片 ID
             const imageIdsDecoded = params.get('id');
