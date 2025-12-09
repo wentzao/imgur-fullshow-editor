@@ -216,32 +216,30 @@
         }
 
 
-        /* 為所有滾動條設定樣式 */
+        /* 隱藏所有滾動條但保留滾動功能 */
+        html,
+        body,
+        .col-scrollable {
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+        }
+
+        /* Webkit browsers (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
-            width: 8px;
-            /* 垂直滾動條的寬度 */
-            height: 8px;
-            /* 水平滾動條的高度 */
+            display: none;
+            width: 0;
+            height: 0;
         }
 
-        /* 滾動條滑塊（滑動部分） */
-        ::-webkit-scrollbar-thumb {
-            background-color: #AAA;
-            /* 滑塊顏色 */
-            border-radius: 4px;
-            /* 滑塊圓角 */
-            border: 2px solid transparent;
-            /* 避免內容被遮擋 */
-            background-clip: content-box;
-            /* 防止顏色延伸到邊界 */
-        }
-
-        /* 滾動條軌道（滑塊移動的區域） */
-        ::-webkit-scrollbar-track {
-            background: #f0f0f0;
-            /* 軌道顏色 */
-            border-radius: 4px;
-            /* 軌道圓角 */
+        .col-scrollable {
+            height: 100vh;
+            /* 設定高度為視窗的100% */
+            overflow-y: auto;
+            /* 內容超出時顯示滾動條 */
+            padding-bottom: 100px;
+            /* 底部留白避免內容被擋住 */
         }
 
         /* Range 滑桿樣式 - 覆蓋 Bootstrap 預設 */
