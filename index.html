@@ -22,10 +22,11 @@
         /* 全局樣式設置 */
         html,
         body {
-            font-family: 'GenSenRounded', 'Noto Sans TC', sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             padding: 10px;
             background-color: #f8f9fa;
-            overflow: hidden;
+            overflow-y: hidden;
+            /* 全域隱藏垂直滾動條 */
             height: 100vh;
             margin: 0;
         }
@@ -427,6 +428,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-lg-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="imageRounded" checked>
+                            <label class="form-check-label" for="imageRounded">圖片圓角</label>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- ========== 螢幕邊界調整 ========== -->
                 <hr class="my-4">
@@ -620,6 +629,9 @@
                     updateImageOrder();
                 }
             });
+
+            // 新增：圖片圓角事件監聽器
+            document.getElementById('imageRounded').addEventListener('change', updateUrl);
 
             // 新增：顯示選項事件監聽器
             document.getElementById('showTitle').addEventListener('change', updateUrl);
@@ -899,6 +911,7 @@
             // 新增：獲取新控制項的值
             const showTitle = document.getElementById('showTitle').checked;
             const showFooter = document.getElementById('showFooter').checked;
+            const imageRounded = document.getElementById('imageRounded').checked;
             const screenPaddingV = document.getElementById('screenPaddingVertical').value;
             const screenPaddingH = document.getElementById('screenPaddingHorizontal').value;
             const bgType = document.querySelector('input[name="bgType"]:checked').value;
@@ -913,6 +926,7 @@
             // 新增：添加新參數（只有非預設值才加入以節省URL長度）
             if (!showTitle) url += `&st=0`;
             if (!showFooter) url += `&sf=0`;
+            if (!imageRounded) url += `&br=0`; // br=1 是預設，所以 br=0 才加
             if (screenPaddingV !== '10') url += `&spv=${screenPaddingV}`;
             if (screenPaddingH !== '10') url += `&sph=${screenPaddingH}`;
             if (bgType !== 'dots') {
