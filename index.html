@@ -1096,87 +1096,146 @@
 
         // 解碼並應用數據
         function decodeAndApplyData() {
-            const input = document.getElementById('decodedUrlInput');
-            const data = LZString.decompressFromEncodedURIComponent(input.value.split('?data=')[1]);
-            const params = new URLSearchParams(data);
+            try {
+                const input = document.getElementById('decodedUrlInput');
+                console.log('=== 開始解碼 ===');
+                console.log('輸入值:', input.value);
 
-            // 更新頁面元素（帶 null 檢查）
-            document.getElementById('title').value = params.get('title') || '';
-            document.getElementById('date').value = formatDateString(params.get('date'));
-            document.getElementById('primaryColor').value = params.get('primaryColor') || '#02a568';
-            document.getElementById('secondaryColor').value = params.get('secondaryColor') || '#e6f7f0';
-            document.getElementById('imageCount').value = params.get('imageCount') || '1';
+                // 處理不同格式的輸入（完整URL或只有data部分）
+                let dataParam = input.value;
+                if (dataParam.includes('?data=')) {
+                    dataParam = dataParam.split('?data=')[1];
+                } else if (dataParam.includes('data=')) {
+                    dataParam = dataParam.split('data=')[1];
+                }
+                // 去除可能的 hash 或其他參數
+                if (dataParam.includes('&')) {
+                    dataParam = dataParam.split('&')[0];
+                }
+                if (dataParam.includes('#')) {
+                    dataParam = dataParam.split('#')[0];
+                }
 
-            // 更新新增的參數（向下相容：舊的 URL 可能沒有這些參數）
-            document.getElementById('showTitle').checked = params.get('st') !== '0';
-            document.getElementById('showFooter').checked = params.get('sf') !== '0';
-            document.getElementById('imageRounded').checked = params.get('br') !== '0';
+                console.log('Data 參數:', dataParam);
 
-            // 螢幕邊界
-            document.getElementById('screenPaddingVertical').value = params.get('spv') || '10';
-            document.getElementById('screenPaddingHorizontal').value = params.get('sph') || '10';
-            document.getElementById('screenPaddingVerticalValue').textContent = params.get('spv') || '10';
-            document.getElementById('screenPaddingHorizontalValue').textContent = params.get('sph') || '10';
+                const data = LZString.decompressFromEncodedURIComponent(dataParam);
+                console.log('解壓後數據:', data);
 
-            // 背景設定
-            const bgType = params.get('bt') || 'dots';
-            document.querySelector(`input[name="bgType"][value="${bgType}"]`).checked = true;
-            if (bgType === 'color') {
-                document.getElementById('bgColorValue').value = params.get('bc') || '#FFFFFF';
-            } else if (bgType === 'image') {
-                document.getElementById('bgImageUrl').value = params.get('bi') ? decodeURIComponent(params.get('bi')) : '';
-            }
-            updateBgTypeUI(); // 更新 UI 顯示
+                if (!data) {
+                    alert('解壓縮失敗，請確認網址格式正確');
+                    return;
+                }
 
-            // 圖片間距
-            document.getElementById('imageGapVertical').value = params.get('igv') || '10';
-            document.getElementById('imageGapHorizontal').value = params.get('igh') || '10';
-            document.getElementById('imageGapVerticalValue').textContent = params.get('igv') || '10';
-            document.getElementById('imageGapHorizontalValue').textContent = params.get('igh') || '10';
+                const params = new URLSearchParams(data);
+                console.log('解析後參數:');
+                for (const [key, value] of params.entries()) {
+                    console.log(`  ${key}: ${value}`);
+                }
 
-            // 解碼圖片 ID
-            const imageIdsDecoded = params.get('id');
-            if (imageIdsDecoded) {
-                // 清空現有圖片列表和陣列
-                document.getElementById('imageList').innerHTML = '';
-                imageIds = [];
+                // 更新頁面元素（帶 null 檢查）
+                document.getElementById('title').value = params.get('title') || '';
+                document.getElementById('date').value = formatDateString(params.get('date'));
+                document.getElementById('primaryColor').value = params.get('primaryColor') || '#02a568';
+                document.getElementById('secondaryColor').value = params.get('secondaryColor') || '#e6f7f0';
+                document.getElementById('imageCount').value = params.get('imageCount') || '1';
 
-                const rawImageIds = imageIdsDecoded.split(',');
-                const decodedImageIds = rawImageIds.map(id => {
-                    // 如果是編碼過的 URL，進行解碼
-                    if (id.includes('%')) {
-                        try {
-                            const decodedId = decodeURIComponent(id);
-                            // 如果解碼後是完整 URL，返回解碼後的結果
-                            if (decodedId.startsWith('http')) {
-                                return decodedId;
-                            }
-                        } catch (e) {
-                            // 解碼失敗，可能不是編碼的 URL
-                        }
-                    }
-                    // 其他情況返回原始 ID
-                    return id;
-                });
+                // 更新新增的參數（向下相容：舊的 URL 可能沒有這些參數）
+                document.getElementById('showTitle').checked = params.get('st') !== '0';
+                document.getElementById('showFooter').checked = params.get('sf') !== '0';
+                document.getElementById('imageRounded').checked = params.get('br') !== '0';
 
-                decodedImageIds.forEach(id => {
-                    if (id.startsWith('http')) {
-                        // 完整 URL，直接載入
-                        fetchImageFromUrl(id);
+                // 螢幕邊界
+                document.getElementById('screenPaddingVertical').value = params.get('spv') || '10';
+                document.getElementById('screenPaddingHorizontal').value = params.get('sph') || '10';
+                document.getElementById('screenPaddingVerticalValue').textContent = params.get('spv') || '10';
+                document.getElementById('screenPaddingHorizontalValue').textContent = params.get('sph') || '10';
+
+                // 背景設定（安全處理）
+                const bgType = params.get('bt') || 'dots';
+                try {
+                    const bgTypeElement = document.querySelector(`input[name="bgType"][value="${bgType}"]`);
+                    if (bgTypeElement) {
+                        bgTypeElement.checked = true;
                     } else {
-                        // Imgur ID，使用現有函數
-                        fetchImageFromImgur(id);
+                        // 如果找不到對應的 bgType，預設選擇 dots
+                        document.querySelector('input[name="bgType"][value="dots"]').checked = true;
                     }
-                });
+                } catch (e) {
+                    console.warn('背景類型設定失敗:', e);
+                    document.querySelector('input[name="bgType"][value="dots"]').checked = true;
+                }
+
+                if (bgType === 'color') {
+                    document.getElementById('bgColorValue').value = params.get('bc') || '#FFFFFF';
+                } else if (bgType === 'image') {
+                    document.getElementById('bgImageUrl').value = params.get('bi') ? decodeURIComponent(params.get('bi')) : '';
+                }
+                updateBgTypeUI(); // 更新 UI 顯示
+
+                // 圖片間距
+                document.getElementById('imageGapVertical').value = params.get('igv') || '10';
+                document.getElementById('imageGapHorizontal').value = params.get('igh') || '10';
+                document.getElementById('imageGapVerticalValue').textContent = params.get('igv') || '10';
+                document.getElementById('imageGapHorizontalValue').textContent = params.get('igh') || '10';
+
+                // 解碼圖片 ID
+                const imageIdsDecoded = params.get('id');
+                console.log('圖片 ID:', imageIdsDecoded);
+
+                if (imageIdsDecoded) {
+                    // 清空現有圖片列表和陣列
+                    document.getElementById('imageList').innerHTML = '';
+                    imageIds = [];
+
+                    const rawImageIds = imageIdsDecoded.split(',');
+                    console.log('分割後的圖片 ID:', rawImageIds);
+
+                    const decodedImageIds = rawImageIds.map(id => {
+                        // 如果是編碼過的 URL，進行解碼
+                        if (id.includes('%')) {
+                            try {
+                                const decodedId = decodeURIComponent(id);
+                                // 如果解碼後是完整 URL，返回解碼後的結果
+                                if (decodedId.startsWith('http')) {
+                                    return decodedId;
+                                }
+                            } catch (e) {
+                                // 解碼失敗，可能不是編碼的 URL
+                            }
+                        }
+                        // 其他情況返回原始 ID
+                        return id;
+                    });
+
+                    console.log('解碼後的圖片 ID:', decodedImageIds);
+
+                    decodedImageIds.forEach(id => {
+                        console.log('載入圖片:', id);
+                        if (id.startsWith('http')) {
+                            // 完整 URL，直接載入
+                            fetchImageFromUrl(id);
+                        } else {
+                            // Imgur ID，使用現有函數
+                            fetchImageFromImgur(id);
+                        }
+                    });
+                } else {
+                    console.log('沒有找到圖片 ID');
+                }
+
+                updatePrimaryColor()
+                updateSecondaryColor()
+
+                // 關閉 Modal
+                const modalElement = document.querySelector('#decodeModal');
+                var modal = bootstrap.Modal.getInstance(modalElement);
+                modal.hide();
+
+                console.log('=== 解碼完成 ===');
+            } catch (error) {
+                console.error('解碼錯誤:', error);
+                alert('解碼過程發生錯誤: ' + error.message);
             }
-
-            updatePrimaryColor()
-            updateSecondaryColor()
-
-            // 關閉 Modal
-            const modalElement = document.querySelector('#decodeModal');
-            var modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
         }
 
         function fetchImageFromImgur(id) {
