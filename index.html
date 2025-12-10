@@ -900,11 +900,11 @@
 
         // 更新URL
         function updateUrl() {
-            const title = document.getElementById('title').value;
-            const date = document.getElementById('date').value.replace(/-/g, '');
+            const title = document.getElementById('title').value || '';
+            const date = document.getElementById('date').value.replace(/-/g, '') || '';
             const primaryColor = document.getElementById('primaryColor').value || '#02a568';
             const secondaryColor = document.getElementById('secondaryColor').value || '#e6f7f0';
-            const imageCount = document.getElementById('imageCount').value;
+            const imageCount = document.getElementById('imageCount').value || '1';
 
             // 新增：獲取新控制項的值
             const showTitle = document.getElementById('showTitle').checked;
@@ -912,14 +912,21 @@
             const imageRounded = document.getElementById('imageRounded').checked;
             const screenPaddingV = document.getElementById('screenPaddingVertical').value;
             const screenPaddingH = document.getElementById('screenPaddingHorizontal').value;
-            const bgType = document.querySelector('input[name="bgType"]:checked').value;
+            const bgType = document.querySelector('input[name="bgType"]:checked')?.value || 'dots';
             const bgColorValue = document.getElementById('bgColorValue').value;
             const bgImageUrl = document.getElementById('bgImageUrl').value;
             const imageGapV = document.getElementById('imageGapVertical').value;
             const imageGapH = document.getElementById('imageGapHorizontal').value;
 
-            // 構建URL參數
-            let url = `title=${encodeURIComponent(title)}&date=${date}&primaryColor=${encodeURIComponent(primaryColor)}&secondaryColor=${encodeURIComponent(secondaryColor)}&imageCount=${imageCount}`;
+            // 構建URL參數（所有參數都是可選的）
+            let url = '';
+
+            // 只有有值時才添加參數
+            if (title) url += `title=${encodeURIComponent(title)}&`;
+            if (date) url += `date=${date}&`;
+            url += `primaryColor=${encodeURIComponent(primaryColor)}&`;
+            url += `secondaryColor=${encodeURIComponent(secondaryColor)}&`;
+            url += `imageCount=${imageCount}`;
 
             // 新增：添加新參數（只有非預設值才加入以節省URL長度）
             if (!showTitle) url += `&st=0`;
@@ -950,8 +957,14 @@
                 });
                 url += `&id=${encodedImageIds.join(',')}`;
             }
+
+            console.log('生成的 URL 參數:', url);
+            console.log('目前圖片 ID:', imageIds);
+
             // 壓縮URL
             const compressedUrl = LZString.compressToEncodedURIComponent(url);
+            console.log('壓縮後:', compressedUrl);
+
             // 更新URL顯示
             document.getElementById('url').value = `https://news.wentzao.com/?data=${compressedUrl}`;
             document.getElementById('lineurl').value = `https://liff.line.me/1660786685-j636WZpM?data=${compressedUrl}`;
@@ -1274,6 +1287,10 @@
                         imgContainer.appendChild(img);
                         imgContainer.appendChild(deleteBtn);
                         document.getElementById('imageList').appendChild(imgContainer);
+
+                        // 新增：將圖片 ID 添加到陣列
+                        imageIds.push(data.data.id);
+                        console.log('Imgur 圖片已載入:', data.data.id, '目前 imageIds:', imageIds);
                     }
                 })
                 .catch(error => {
@@ -1313,6 +1330,10 @@
             imgContainer.appendChild(img);
             imgContainer.appendChild(deleteBtn);
             document.getElementById('imageList').appendChild(imgContainer);
+
+            // 新增：將圖片 URL 添加到陣列
+            imageIds.push(imageUrl);
+            console.log('URL 圖片已載入:', imageUrl, '目前 imageIds:', imageIds);
 
             updateUrl();
             updatePreview();
