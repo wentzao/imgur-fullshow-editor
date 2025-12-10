@@ -488,12 +488,12 @@ select.form-control {
 }
 
 .btn-export-secondary {
-    background: #06d6a0;
+    background: #00cb42;
     color: white;
 }
 
 .btn-export-secondary:hover {
-    background: #05c693;
+    background: #00b63d;
     transform: translateY(-1px);
 }
 
