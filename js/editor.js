@@ -173,11 +173,15 @@ function updateUrl() {
 // 更新預覽（強制刷新）
 function updatePreview() {
     const previewIframe = document.getElementById('previewIframe');
-    const previewUrl = document.getElementById('url').value;
+    const urlValue = document.getElementById('url').value;
 
-    // 添加時間戳強制刷新
-    const urlWithTimestamp = previewUrl + (previewUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
-    previewIframe.src = urlWithTimestamp;
+    // 提取 data 參數用於本地預覽
+    const dataMatch = urlValue.match(/\?data=(.+)$/);
+    if (dataMatch) {
+        // 使用相對路徑指向顯示頁面（本地開發）
+        const localPreviewUrl = '../imgur-fullshow-master/index.html?data=' + dataMatch[1] + '&_t=' + Date.now();
+        previewIframe.src = localPreviewUrl;
+    }
 }
 
 // 更新預覽縮放比例
