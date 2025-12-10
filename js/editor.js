@@ -173,15 +173,11 @@ function updateUrl() {
 // 更新預覽（強制刷新）
 function updatePreview() {
     const previewIframe = document.getElementById('previewIframe');
-    const urlValue = document.getElementById('url').value;
+    const previewUrl = document.getElementById('url').value;
 
-    // 提取 data 參數用於本地預覽
-    const dataMatch = urlValue.match(/\?data=(.+)$/);
-    if (dataMatch) {
-        // 使用相對路徑指向顯示頁面（本地開發）
-        const localPreviewUrl = '../imgur-fullshow-master/index.html?data=' + dataMatch[1] + '&_t=' + Date.now();
-        previewIframe.src = localPreviewUrl;
-    }
+    // 添加時間戳強制刷新
+    const urlWithTimestamp = previewUrl + (previewUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+    previewIframe.src = urlWithTimestamp;
 }
 
 // 更新預覽縮放比例
@@ -331,9 +327,10 @@ function uploadImageToImgur(file) {
 
     showToast('📤 正在上傳圖片...');
 
+    const clientId = "a0a92307b538c2f";
+
     fileToBase64(file)
         .then((base64) => {
-            console.log('開始上傳圖片，大小:', Math.round(base64.length / 1024), 'KB');
             return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
                 method: "POST",
                 headers: {
@@ -341,19 +338,12 @@ function uploadImageToImgur(file) {
                 },
                 body: JSON.stringify({
                     image: base64,
-                    type: "base64"
+                    clientId: clientId
                 })
             });
         })
-        .then(response => {
-            console.log('Imgur 回應狀態:', response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(result => {
-            console.log('Imgur 回應:', result);
             if (result.success) {
                 const imgContainer = document.createElement('div');
                 imgContainer.classList.add('img-container');
@@ -383,15 +373,14 @@ function uploadImageToImgur(file) {
                 imageIds.push(result.data.id);
                 showToast('✅ 圖片上傳成功！');
             } else {
-                console.error('Imgur 上傳失敗:', result);
-                showToast('❌ 上傳失敗: ' + (result.data?.error || '未知錯誤'));
+                showToast('❌ 圖片上傳失敗，請重試');
             }
             saveStatus.remove();
             updateUrl();
             updateScale();
         })
         .catch(error => {
-            console.error("上傳錯誤:", error);
+            console.error("Error:", error);
             saveStatus.remove();
             showToast('❌ 上傳失敗: ' + error.message);
         });
