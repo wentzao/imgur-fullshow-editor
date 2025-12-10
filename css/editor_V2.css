@@ -1,6 +1,9 @@
 /* ========== 文藻美語公告編輯器樣式 ========== */
 /* Canva 風格淺色主題 */
 
+/* 字體匯入必須放在最頂部 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* ========== 主題變數 ========== */
 :root {
     --bg-main: #e8e8e8;
@@ -25,8 +28,6 @@
 }
 
 /* ========== 全局樣式 ========== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 html,
 body {
     font-family: 'Inter', 'Noto Sans TC', sans-serif;
