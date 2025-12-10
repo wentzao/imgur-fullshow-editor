@@ -1,1345 +1,311 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文藻美語 圖片公告編輯器</title>
-    <!-- 引入Bootstrap和Font Awesome的CSS -->
+    <title>文藻美語公告編輯器</title>
+
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- 引入Sortable.js用於拖拽排序功能 -->
+
+    <!-- Sortable.js -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-    <!-- <link rel=stylesheet type="text/css" href="style.css"> -->
-    <style>
-        /* 定義自定義字體 */
-        /* @font-face {
-            font-family: 'GenSenRounded';
-            src: url('GenSenRounded-R.otf') format('opentype');
-        } */
 
-        /* 全局樣式設置 */
-        html,
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            padding: 10px;
-            background-color: #f8f9fa;
-            overflow-y: hidden;
-            /* 全域隱藏垂直滾動條 */
-            height: 100vh;
-            margin: 0;
-        }
+    <!-- LZ-String -->
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
 
-        /* 容器最大寬度設置 */
-        .container {
-            max-width: 100%;
-        }
-
-        /* 圖片預覽樣式 */
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* 圖片容器樣式 */
-        .img-container {
-            position: relative;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            cursor: move;
-        }
-
-        /* 刪除按鈕樣式 */
-        .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            text-align: center;
-            line-height: 25px;
-            cursor: pointer;
-        }
-
-        /* 顏色預覽樣式 */
-        .color-preview {
-            width: 30px;
-            display: inline-block;
-            border: 1px solid #ddd;
-            vertical-align: middle;
-            margin-left: 10px;
-        }
-
-        /* URL顯示區域樣式 */
-        .url-display {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            overflow-wrap: break-word;
-        }
-
-        /* 複製按鈕樣式 */
-        .copy-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        /* 主色和副色預覽樣式 */
-        #primaryColorPreview {
-            background-color: #02a568;
-        }
-
-        #secondaryColorPreview {
-            background-color: #e6f7f0;
-        }
-
-        /* 編輯器區域樣式 */
-        #editorSection {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        /* 預覽區域樣式 */
-        #previewSection {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            margin-top: 20px;
-            height: calc(100vh - 150px);
-            overflow: hidden;
-        }
-
-        /* 設備模擬器容器 */
-        .device-simulator {
-            position: relative;
-            background: #333;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* 手機模擬器 */
-        .device-simulator.mobile {
-            width: 390px;
-            height: 844px;
-            border-radius: 30px;
-            padding: 30px 15px;
-        }
-
-        /* 平板模擬器 */
-        .device-simulator.tablet {
-            width: 820px;
-            height: 1180px;
-            border-radius: 25px;
-            padding: 25px;
-        }
-
-        /* 桌機模擬器 */
-        .device-simulator.desktop {
-            width: 1400px;
-            height: 900px;
-            border-radius: 10px;
-            padding: 10px;
-            background: #222;
-        }
-
-        /* 設備螢幕 */
-        .device-screen {
-            width: 100%;
-            height: 100%;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .device-screen.mobile {
-            border-radius: 20px;
-        }
-
-        .device-screen.tablet {
-            border-radius: 15px;
-        }
-
-        .device-screen.desktop {
-            border-radius: 5px;
-        }
-
-        /* 預覽iframe樣式 */
-        #previewIframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        /* 設備標籤 */
-        .device-label {
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        /* 縮放容器以適應視窗 */
-        .preview-container {
-            transform-origin: top center;
-            transition: transform 0.3s ease;
-        }
-
-        /* 圖片列表樣式 */
-        #imageList {
-            min-height: 50px;
-        }
-
-
-        /* 隱藏所有滾動條但保留滾動功能 */
-        html,
-        body,
-        .col-scrollable {
-            scrollbar-width: none;
-            /* Firefox */
-            -ms-overflow-style: none;
-            /* IE and Edge */
-        }
-
-        /* Webkit browsers (Chrome, Safari, Edge) */
-        ::-webkit-scrollbar {
-            display: none;
-            width: 0;
-            height: 0;
-        }
-
-        .col-scrollable {
-            height: 100vh;
-            /* 設定高度為視窗的100% */
-            overflow-y: auto;
-            /* 內容超出時顯示滾動條 */
-            padding-bottom: 100px;
-            /* 底部留白避免內容被擋住 */
-        }
-
-        /* Range 滑桿樣式 - 覆蓋 Bootstrap 預設 */
-        .form-range,
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #dee2e6 !important;
-            border-radius: 4px;
-            outline: none;
-            padding: 0 !important;
-            margin: 10px 0;
-        }
-
-        /* Range 滑桿 - 滑塊 (Webkit: Chrome, Safari, Edge) */
-        .form-range::-webkit-slider-thumb,
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #0d6efd;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            margin-top: -6px;
-        }
-
-        .form-range::-webkit-slider-thumb:hover,
-        input[type="range"]::-webkit-slider-thumb:hover {
-            background: #0b5ed7;
-        }
-
-        /* Range 滑桿 - 軌道 (Webkit) */
-        .form-range::-webkit-slider-runnable-track,
-        input[type="range"]::-webkit-slider-runnable-track {
-            height: 8px;
-            background: #dee2e6;
-            border-radius: 4px;
-        }
-
-        /* Range 滑桿 - 滑塊 (Firefox) */
-        .form-range::-moz-range-thumb,
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #0d6efd;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Range 滑桿 - 軌道 (Firefox) */
-        .form-range::-moz-range-track,
-        input[type="range"]::-moz-range-track {
-            background: #dee2e6;
-            height: 8px;
-            border-radius: 4px;
-        }
-
-
-        .col-scrollable {
-            height: 100vh;
-            /* 設定高度為視窗的100% */
-            overflow-y: auto;
-            /* 內容超出時顯示滾動條 */
-            padding-bottom: 100px;
-            /* 底部留白避免內容被擋住 */
-        }
-
-        .col-scrollable.right-column {
-            overflow: hidden;
-            /* 右側欄位隱藏滾動條 */
-        }
-
-        /* 響應式設計 */
-        @media (max-width: 767px) {
-            .container {
-                max-width: 100%;
-            }
-
-            .copy-btn {
-                width: 15%;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .copy-btn {
-                width: 8%;
-                margin-left: auto;
-            }
-        }
-    </style>
+    <!-- 自訂樣式 -->
+    <link rel="stylesheet" href="css/editor.css">
 </head>
 
 <body>
     <!-- 主要內容區域 -->
     <div class="row" style="height: 100vh; margin: 0;">
         <!-- 編輯器區域 -->
-        <div id="left-column" class="col-lg-4 col-12 col-scrollable" style="overflow: auto;">
-            <div id="editorSection" class="container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>圖片公告編輯器 <i class="fas fa-history" data-bs-toggle="modal" data-bs-target="#decodeModal"></i></h2>
-                </div>
-                <!-- 標題和日期輸入區 -->
-                <div class="row mb-3">
-                    <div class="col-lg-6 mb-3">
-                        <label for="title" class="form-label">標題</label>
-                        <input type="text" class="form-control form-control" id="title">
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="date" class="form-label">日期</label>
-                        <input type="date" class="form-control form-control" id="date" value="">
-                    </div>
-                </div>
-                <!-- 顏色和排列選擇區 -->
-                <div class="row mb-3">
-                    <div class="col-lg-4 mb-3">
-                        <label for="primaryColor" class="form-label">主顏色</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control form-control" id="primaryColor"
-                                placeholder="#02a568">
-                            <div id="primaryColorPreview" class="color-preview"></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <label for="secondaryColor" class="form-label">副顏色</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control form-control" id="secondaryColor"
-                                placeholder="#e6f7f0">
-                            <div id="secondaryColorPreview" class="color-preview"></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <label for="imageCount" class="form-label">桌機排列</label>
-                        <select class="form-control form-control" id="imageCount">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
-                            <option value="4">4</option>
-                        </select>
-                    </div>
-                </div>
-                <!-- 圖片上傳區 -->
-                <div class="row mb-3">
-                    <div class="col-lg">
-                        <label for="upload" class="form-label">上傳圖片（可多選）</label>
-                        <input type="file" class="form-control form-control" id="upload" accept="image/*" multiple>
+        <div class="col-lg-4 col-12 editor-sidebar">
+            <!-- 頂部標題 -->
+            <div class="editor-header">
+                <h1 class="editor-title">
+                    <div class="editor-title-icon"><i class="fas fa-newspaper"></i></div>
+                    文藻美語公告編輯器
+                </h1>
+                <button class="header-btn" data-bs-toggle="modal" data-bs-target="#decodeModal">
+                    <i class="fas fa-folder-open"></i> 載入
+                </button>
+            </div>
 
-                        <!-- 圖片網址輸入區 -->
+            <!-- 編輯器內容 -->
+            <div class="editor-content">
+                <!-- 📝 基本資訊卡片 -->
+                <div class="editor-card">
+                    <div class="card-header active" onclick="toggleCard(this)">
+                        <h3 class="card-title"><span class="card-icon">📝</span> 基本資訊</h3>
+                        <i class="fas fa-chevron-down card-toggle"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-12 mb-3">
+                                <label for="title" class="form-label">公告標題</label>
+                                <input type="text" class="form-control" id="title" placeholder="輸入標題...">
+                            </div>
+                            <div class="col-6">
+                                <label for="date" class="form-label">日期</label>
+                                <input type="date" class="form-control" id="date" value="">
+                            </div>
+                            <div class="col-6">
+                                <label for="imageCount" class="form-label">桌機排列</label>
+                                <select class="form-control" id="imageCount">
+                                    <option value="1">1 欄</option>
+                                    <option value="2">2 欄</option>
+                                    <option value="3" selected>3 欄</option>
+                                    <option value="4">4 欄</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="primaryColor" class="form-label">主顏色</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="primaryColor" placeholder="#02a568"
+                                        value="#02a568">
+                                    <div id="primaryColorPreview" class="color-preview"
+                                        style="background-color: #02a568;">
+                                        <input type="color" class="color-input-hidden" id="primaryColorPicker"
+                                            value="#02a568">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="secondaryColor" class="form-label">副顏色</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="secondaryColor" placeholder="#e6f7f0"
+                                        value="#e6f7f0">
+                                    <div id="secondaryColorPreview" class="color-preview"
+                                        style="background-color: #e6f7f0;">
+                                        <input type="color" class="color-input-hidden" id="secondaryColorPicker"
+                                            value="#e6f7f0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📷 圖片管理卡片 -->
+                <div class="editor-card">
+                    <div class="card-header active" onclick="toggleCard(this)">
+                        <h3 class="card-title"><span class="card-icon">📷</span> 圖片管理</h3>
+                        <i class="fas fa-chevron-down card-toggle"></i>
+                    </div>
+                    <div class="card-body">
+                        <!-- 拖放上傳區 -->
+                        <div class="upload-zone" onclick="document.getElementById('upload').click()" id="uploadZone">
+                            <div class="upload-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <div class="upload-zone-text">拖放圖片到此處，或點擊上傳</div>
+                            <div class="upload-zone-hint">支援 JPG, PNG, GIF, WebP 格式</div>
+                        </div>
+                        <input type="file" id="upload" accept="image/*" multiple style="display: none;">
+
+                        <!-- 網址輸入 -->
                         <div class="mt-3">
-                            <label for="imageUrl" class="form-label">或直接貼上圖片網址</label>
                             <div class="input-group">
-                                <input type="url" class="form-control" id="imageUrl"
-                                    placeholder="https://example.com/image.jpg">
-                                <button type="button" class="btn btn-primary" onclick="addImageFromUrl()">
-                                    <i class="fas fa-plus"></i> 新增
+                                <input type="url" class="form-control" id="imageUrl" placeholder="或貼上圖片網址...">
+                                <button type="button" class="btn btn-primary" onclick="addImageFromUrl()"
+                                    style="border-radius: 0 8px 8px 0; background: var(--primary); border-color: var(--primary);">
+                                    <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="imageList" class="row mt-3"></div>
+                        <!-- 圖片列表 -->
+                        <div id="imageList" class="image-list"></div>
                     </div>
                 </div>
 
-                <!-- ========== 顯示選項 ========== -->
-                <hr class="my-4">
-                <h5>📋 顯示選項</h5>
-                <div class="row mb-3">
-                    <div class="col-lg-6">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="showTitle" checked>
-                            <label class="form-check-label" for="showTitle">顯示標題和日期</label>
-                        </div>
+                <!-- ⚙️ 顯示選項卡片 -->
+                <div class="editor-card">
+                    <div class="card-header active" onclick="toggleCard(this)">
+                        <h3 class="card-title"><span class="card-icon">⚙️</span> 顯示選項</h3>
+                        <i class="fas fa-chevron-down card-toggle"></i>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="showFooter" checked>
-                            <label class="form-check-label" for="showFooter">顯示底部 Footer</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-lg-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="imageRounded" checked>
-                            <label class="form-check-label" for="imageRounded">圖片圓角</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ========== 螢幕邊界調整 ========== -->
-                <hr class="my-4">
-                <h5>🖼️ 螢幕邊界</h5>
-                <div class="row mb-3">
-                    <div class="col-lg-6">
-                        <label for="screenPaddingVertical" class="form-label">
-                            上下邊界：<span id="screenPaddingVerticalValue">10</span>px
-                        </label>
-                        <input type="range" class="form-range" id="screenPaddingVertical" min="0" max="100" value="10">
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="screenPaddingHorizontal" class="form-label">
-                            左右邊界：<span id="screenPaddingHorizontalValue">10</span>px
-                        </label>
-                        <input type="range" class="form-range" id="screenPaddingHorizontal" min="0" max="100"
-                            value="10">
-                    </div>
-                </div>
-
-                <!-- ========== 背景設定 ========== -->
-                <hr class="my-4">
-                <h5>🎨 背景設定</h5>
-                <div class="row mb-3">
-                    <div class="col-lg-12">
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="bgType" id="bgDots" value="dots" checked>
-                            <label class="btn btn-outline-secondary" for="bgDots">點點背景</label>
-
-                            <input type="radio" class="btn-check" name="bgType" id="bgColor" value="color">
-                            <label class="btn btn-outline-secondary" for="bgColor">純色</label>
-
-                            <input type="radio" class="btn-check" name="bgType" id="bgImage" value="image">
-                            <label class="btn btn-outline-secondary" for="bgImage">自訂圖片</label>
-                        </div>
-                    </div>
-                    <!-- 純色選擇器（條件顯示）-->
-                    <div class="col-lg-6 mt-2" id="bgColorPicker" style="display:none;">
-                        <label class="form-label">背景顏色</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="bgColorValue" placeholder="#FFFFFF">
-                            <div id="bgColorPreview" class="color-preview" style="background-color: #FFFFFF;"></div>
-                        </div>
-                    </div>
-                    <!-- 背景圖片上傳（條件顯示）-->
-                    <div class="col-lg-12 mt-2" id="bgImageUpload" style="display:none;">
-                        <label class="form-label">背景圖片</label>
-                        <input type="file" class="form-control" id="bgImageFile" accept="image/*">
-                        <input type="url" class="form-control mt-2" id="bgImageUrl" placeholder="或貼上圖片網址">
-                    </div>
-                </div>
-
-                <!-- ========== 圖片間距調整 ========== -->
-                <hr class="my-4">
-                <h5>🖼️ 圖片間距</h5>
-                <div class="row mb-3">
-                    <div class="col-lg-6">
-                        <label for="imageGapVertical" class="form-label">
-                            上下間距：<span id="imageGapVerticalValue">10</span>px
-                        </label>
-                        <input type="range" class="form-range" id="imageGapVertical" min="0" max="50" value="10">
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="imageGapHorizontal" class="form-label">
-                            左右間距：<span id="imageGapHorizontalValue">10</span>px
-                        </label>
-                        <input type="range" class="form-range" id="imageGapHorizontal" min="0" max="50" value="10">
-                    </div>
-                </div>
-                <!-- URL顯示區 -->
-                <div class="row mb-3" hidden>
-                    <div class="col-lg-6">
-                        <label for="url" class="form-label">公告網址</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control form-control" id="url" readonly>
-                            <button type="button" class="copy-btn btn btn-primary" onclick="copyToClipboard()">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="lineurl" class="form-label">LINE圖文網址</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control form-control" id="lineurl" readonly>
-                            <button type="button" class="copy-btn btn btn-primary" onclick="copyToClipboard2()">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- 解碼 Modal -->
-                <div class="modal fade" id="decodeModal" tabindex="-1" aria-labelledby="decodeModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="decodeModalLabel">編輯歷史紀錄</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="showTitle" checked>
+                                    <label class="form-check-label" for="showTitle">顯示標題</label>
+                                </div>
                             </div>
-                            <div class="modal-body">
-                                <input type="text" id="decodedUrlInput" class="form-control" placeholder="貼上連結">
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="showFooter" checked>
+                                    <label class="form-check-label" for="showFooter">顯示 Footer</label>
+                                </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" onclick="decodeAndApplyData()">確認</button>
+                            <div class="col-12 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="imageRounded" checked>
+                                    <label class="form-check-label" for="imageRounded">圖片圓角</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📐 進階設定卡片（預設收合） -->
+                <div class="editor-card">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3 class="card-title"><span class="card-icon">📐</span> 進階設定</h3>
+                        <i class="fas fa-chevron-down card-toggle collapsed"></i>
+                    </div>
+                    <div class="card-body collapsed">
+                        <!-- 螢幕邊界 -->
+                        <div class="mb-4">
+                            <label class="form-label" style="font-weight: 600; color: var(--text-primary);">螢幕邊界</label>
+                            <div class="range-group mb-2">
+                                <span class="form-label" style="min-width: 60px;">上下</span>
+                                <input type="range" class="range-slider" id="screenPaddingVertical" min="0" max="100"
+                                    value="10">
+                                <span class="range-value"><span id="screenPaddingVerticalValue">10</span>px</span>
+                            </div>
+                            <div class="range-group">
+                                <span class="form-label" style="min-width: 60px;">左右</span>
+                                <input type="range" class="range-slider" id="screenPaddingHorizontal" min="0" max="100"
+                                    value="10">
+                                <span class="range-value"><span id="screenPaddingHorizontalValue">10</span>px</span>
+                            </div>
+                        </div>
+
+                        <!-- 圖片間距 -->
+                        <div class="mb-4">
+                            <label class="form-label" style="font-weight: 600; color: var(--text-primary);">圖片間距</label>
+                            <div class="range-group mb-2">
+                                <span class="form-label" style="min-width: 60px;">上下</span>
+                                <input type="range" class="range-slider" id="imageGapVertical" min="0" max="50"
+                                    value="10">
+                                <span class="range-value"><span id="imageGapVerticalValue">10</span>px</span>
+                            </div>
+                            <div class="range-group">
+                                <span class="form-label" style="min-width: 60px;">左右</span>
+                                <input type="range" class="range-slider" id="imageGapHorizontal" min="0" max="50"
+                                    value="10">
+                                <span class="range-value"><span id="imageGapHorizontalValue">10</span>px</span>
+                            </div>
+                        </div>
+
+                        <!-- 背景設定 -->
+                        <div>
+                            <label class="form-label" style="font-weight: 600; color: var(--text-primary);">背景樣式</label>
+                            <div class="btn-group-custom mb-3">
+                                <input type="radio" name="bgType" id="bgDots" value="dots" checked
+                                    style="display: none;">
+                                <label class="btn-option active" for="bgDots" onclick="selectBgType('dots')">點點</label>
+
+                                <input type="radio" name="bgType" id="bgColor" value="color" style="display: none;">
+                                <label class="btn-option" for="bgColor" onclick="selectBgType('color')">純色</label>
+
+                                <input type="radio" name="bgType" id="bgImage" value="image" style="display: none;">
+                                <label class="btn-option" for="bgImage" onclick="selectBgType('image')">圖片</label>
+                            </div>
+
+                            <!-- 純色選擇器 -->
+                            <div id="bgColorPicker" style="display:none;">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="bgColorValue" placeholder="#FFFFFF">
+                                    <div id="bgColorPreview" class="color-preview" style="background-color: #FFFFFF;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 背景圖片 -->
+                            <div id="bgImageUpload" style="display:none;">
+                                <input type="file" class="form-control mb-2" id="bgImageFile" accept="image/*">
+                                <input type="url" class="form-control" id="bgImageUrl" placeholder="或貼上圖片網址">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- 匯出按鈕區 -->
+            <div class="export-section">
+                <div class="export-buttons">
+                    <button class="btn-export btn-export-primary" onclick="copyToClipboard()">
+                        <i class="fas fa-globe"></i> 複製網址
+                    </button>
+                    <button class="btn-export btn-export-secondary" onclick="copyToClipboard2()">
+                        <i class="fab fa-line"></i> LINE
+                    </button>
+                </div>
+            </div>
+
+            <!-- 隱藏的 URL 輸入框 -->
+            <div class="url-display-hidden">
+                <input type="text" id="url" readonly>
+                <input type="text" id="lineurl" readonly>
+            </div>
         </div>
+
         <!-- 預覽區域 -->
-        <div id="right-column" class="col-lg-8 col-12 col-scrollable right-column">
-            <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <!-- 左側元素 -->
-                    <div class="d-flex align-items-center">
-                        <h2>公告網頁預覽</h2>
-                        <select class="form-control form-control" id="scale"
-                            style="width: auto; display: inline-block; margin-left: 20px;">
-                            <option value="0.5">桌機</option>
-                            <option value="0.75">平板</option>
-                            <option value="1" selected>手機</option>
-                        </select>
-                    </div>
-                    <!-- 右側按鈕 -->
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-success" style="margin-left: 8px;" onclick="copyToClipboard()"><i
-                                class="far fa-copy"></i>公告網址</button>
-                        <button class="btn btn-outline-success" style="margin-left: 8px;"
-                            onclick="copyToClipboard2()"><i class="far fa-copy"></i>Line網址</button>
-                    </div>
-                </div>
-                <div id="previewSection">
-                    <div class="preview-container" id="previewContainer">
-                        <div class="device-simulator mobile" id="deviceSimulator">
-                            <div class="device-label" id="deviceLabel">iPhone 14 Pro (390×844)</div>
-                            <div class="device-screen mobile" id="deviceScreen">
-                                <iframe id="previewIframe"></iframe>
-                            </div>
+        <div class="col-lg-8 col-12 preview-area">
+            <div class="preview-controls">
+                <button class="preview-control-btn active" onclick="setPreviewScale('1', this)" title="手機">
+                    <i class="fas fa-mobile-alt"></i>
+                </button>
+                <button class="preview-control-btn" onclick="setPreviewScale('0.75', this)" title="平板">
+                    <i class="fas fa-tablet-alt"></i>
+                </button>
+                <button class="preview-control-btn" onclick="setPreviewScale('0.5', this)" title="桌機">
+                    <i class="fas fa-desktop"></i>
+                </button>
+            </div>
+            <select class="form-control" id="scale" style="display: none;">
+                <option value="0.5">桌機</option>
+                <option value="0.75">平板</option>
+                <option value="1" selected>手機</option>
+            </select>
+            <div id="previewSection">
+                <div class="preview-container" id="previewContainer">
+                    <div class="device-simulator mobile" id="deviceSimulator">
+                        <div class="device-label" id="deviceLabel">iPhone 14 Pro (390×844)</div>
+                        <div class="device-screen mobile" id="deviceScreen">
+                            <iframe id="previewIframe"></iframe>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-    <!-- 引入lz-string庫用於URL壓縮 -->
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
-    <script>
-        // 當DOM完全加載後執行
-        document.addEventListener('DOMContentLoaded', function () {
-            // 設置日期輸入框的初始值為今天
-            document.getElementById('date').value = new Date().toISOString().slice(0, 10);
 
-            // 為圖片上傳input添加事件監聽器
-            document.getElementById('upload').addEventListener('change', function (event) {
-                const files = event.target.files;
-                if (files.length > 0) {
-                    Array.from(files).forEach(file => {
-                        uploadImageToImgur(file);
-                    });
-                }
-            });
-
-            // 為各個輸入元素添加事件監聽器，當值變化時更新URL
-            document.getElementById('title').addEventListener('input', updateUrl);
-            document.getElementById('date').addEventListener('input', updateUrl);
-            document.getElementById('primaryColor').addEventListener('input', updatePrimaryColor);
-            document.getElementById('secondaryColor').addEventListener('input', updateSecondaryColor);
-            document.getElementById('imageCount').addEventListener('input', updateUrl);
-            document.getElementById('scale').addEventListener('input', updateScale);
-
-            // 為圖片網址輸入框添加 Enter 鍵支援
-            document.getElementById('imageUrl').addEventListener('keypress', function (event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    addImageFromUrl();
-                }
-            });
-
-            // 初始化顏色預覽
-            updatePrimaryColor();
-            updateSecondaryColor();
-
-            // 初始化Sortable.js，使圖片列表可拖拽排序
-            new Sortable(document.getElementById('imageList'), {
-                animation: 150,
-                ghostClass: 'blue-background-class',
-                onEnd: function () {
-                    updateImageOrder();
-                }
-            });
-
-            // 新增：圖片圓角事件監聽器
-            document.getElementById('imageRounded').addEventListener('change', updateUrl);
-
-            // 新增：顯示選項事件監聽器
-            document.getElementById('showTitle').addEventListener('change', updateUrl);
-            document.getElementById('showFooter').addEventListener('change', updateUrl);
-
-            // 新增：螢幕邊界滑桿事件監聽器
-            document.getElementById('screenPaddingVertical').addEventListener('input', function () {
-                document.getElementById('screenPaddingVerticalValue').textContent = this.value;
-                updateUrl();
-            });
-            document.getElementById('screenPaddingHorizontal').addEventListener('input', function () {
-                document.getElementById('screenPaddingHorizontalValue').textContent = this.value;
-                updateUrl();
-            });
-
-            // 新增：圖片間距滑桿事件監聯器
-            document.getElementById('imageGapVertical').addEventListener('input', function () {
-                document.getElementById('imageGapVerticalValue').textContent = this.value;
-                updateUrl();
-            });
-            document.getElementById('imageGapHorizontal').addEventListener('input', function () {
-                document.getElementById('imageGapHorizontalValue').textContent = this.value;
-                updateUrl();
-            });
-
-            // 新增：背景類型切換事件監聽器
-            document.querySelectorAll('input[name="bgType"]').forEach(radio => {
-                radio.addEventListener('change', function () {
-                    updateBgTypeUI();
-                    updateUrl();
-                });
-            });
-
-            // 新增：背景顏色輸入事件監聽器
-            document.getElementById('bgColorValue').addEventListener('input', function () {
-                let color = this.value;
-                if (color && !color.startsWith('#')) {
-                    color = '#' + color;
-                    this.value = color;
-                }
-                document.getElementById('bgColorPreview').style.backgroundColor = color;
-                updateUrl();
-            });
-
-            // 新增：背景圖片網址事件監聽器
-            document.getElementById('bgImageUrl').addEventListener('input', updateUrl);
-
-            // 新增：背景圖片上傳事件監聽器
-            document.getElementById('bgImageFile').addEventListener('change', function (event) {
-                const file = event.target.files[0];
-                if (file) {
-                    uploadBgImageToImgur(file);
-                }
-            });
-
-            updateScale();
-        });
-
-        // 存儲上傳圖片的ID
-        let imageIds = [];
-
-        // 上傳圖片到Imgur (透過 Cloudflare Worker 代理)
-        function uploadImageToImgur(file) {
-            // 創建並顯示上傳狀態元素
-            const saveStatus = document.createElement('div');
-            saveStatus.classList.add('saveStatus');
-            saveStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上傳中...';
-            document.getElementById('imageList').appendChild(saveStatus);
-
-            // Imgur API客戶端ID
-            const clientId = "a0a92307b538c2f";
-
-            // 將圖片轉換為 Base64
-            fileToBase64(file)
-                .then((base64) => {
-                    return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            image: base64,
-                            clientId: clientId
-                        }),
-                        muteHttpExceptions: true,
-                    });
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        // 如果上傳成功，添加圖片ID到數組
-                        imageIds.push(result.data.id);
-                        // 創建圖片預覽元素
-                        const imgContainer = document.createElement('div');
-                        imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
-                        imgContainer.dataset.imageId = result.data.id;
-                        const img = document.createElement('img');
-                        img.src = result.data.link;
-                        img.classList.add('image-preview');
-                        // 創建刪除按鈕
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.classList.add('delete-btn');
-                        deleteBtn.innerHTML = '&times;';
-                        deleteBtn.onclick = () => {
-                            const index = imageIds.indexOf(result.data.id);
-                            if (index > -1) {
-                                imageIds.splice(index, 1);
-                            }
-                            imgContainer.remove();
-                            updateUrl();
-                        };
-                        imgContainer.appendChild(img);
-                        imgContainer.appendChild(deleteBtn);
-                        document.getElementById('imageList').appendChild(imgContainer);
-                    } else {
-                        alert("圖片上傳失敗，請重試！錯誤: " + (result.error || "未知錯誤"));
-                    }
-                    saveStatus.remove();
-                    updateUrl();
-                    updateScale();
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    saveStatus.innerHTML = "上傳失敗: " + error.message;
-                })
-                .finally(() => {
-                    updateScale();
-                });
-        }
-
-        // 將檔案轉換為 Base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    // 移除 data:image/jpeg;base64, 前綴，只保留 base64 字符串
-                    const base64 = reader.result.split(',')[1];
-                    resolve(base64);
-                };
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        // 從圖片網址新增圖片
-        function addImageFromUrl() {
-            const urlInput = document.getElementById('imageUrl');
-            const imageUrl = urlInput.value.trim();
-
-            // 驗證網址
-            if (!imageUrl) {
-                alert('請輸入圖片網址');
-                return;
-            }
-
-            // 簡單的URL格式驗證
-            try {
-                new URL(imageUrl);
-            } catch (e) {
-                alert('請輸入有效的網址格式');
-                return;
-            }
-
-            // 驗證是否為圖片網址
-            if (!isImageUrl(imageUrl)) {
-                alert('請輸入有效的圖片網址（支援 .jpg, .jpeg, .png, .gif, .webp, .bmp, .svg）');
-                return;
-            }
-
-            // 創建並顯示載入狀態
-            const saveStatus = document.createElement('div');
-            saveStatus.classList.add('saveStatus');
-            saveStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 載入圖片中...';
-            document.getElementById('imageList').appendChild(saveStatus);
-
-            // 測試圖片是否可以載入
-            const testImg = new Image();
-            testImg.crossOrigin = "anonymous";
-
-            testImg.onload = function () {
-                // 圖片載入成功，新增到列表
-                const imgContainer = document.createElement('div');
-                imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
-                imgContainer.dataset.imageId = imageUrl; // 直接使用完整URL作為ID
-
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                img.classList.add('image-preview');
-
-                // 創建刪除按鈕
-                const deleteBtn = document.createElement('button');
-                deleteBtn.classList.add('delete-btn');
-                deleteBtn.innerHTML = '&times;';
-                deleteBtn.onclick = () => {
-                    const index = imageIds.indexOf(imageUrl);
-                    if (index > -1) {
-                        imageIds.splice(index, 1);
-                    }
-                    imgContainer.remove();
-                    updateUrl();
-                };
-
-                imgContainer.appendChild(img);
-                imgContainer.appendChild(deleteBtn);
-                document.getElementById('imageList').appendChild(imgContainer);
-
-                // 新增到圖片ID陣列（現在支援完整URL）
-                imageIds.push(imageUrl);
-
-                // 清空輸入框
-                urlInput.value = '';
-
-                // 移除載入狀態並更新
-                saveStatus.remove();
-                updateUrl();
-                updateScale();
-            };
-
-            testImg.onerror = function () {
-                // 圖片載入失敗
-                alert('無法載入此圖片，請檢查網址是否正確');
-                saveStatus.remove();
-            };
-
-            // 開始載入圖片
-            testImg.src = imageUrl;
-        }
-
-        // 驗證是否為圖片網址
-        function isImageUrl(url) {
-            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
-            const lowerUrl = url.toLowerCase();
-            return imageExtensions.some(ext => lowerUrl.includes(ext)) ||
-                lowerUrl.includes('imgur.com') ||
-                lowerUrl.includes('i.imgur.com');
-        }
-
-        // 更新圖片順序
-        function updateImageOrder() {
-            imageIds = Array.from(document.getElementById('imageList').children)
-                .map(container => container.dataset.imageId);
-            updateUrl();
-        }
-
-        // 更新主顏色
-        function updatePrimaryColor() {
-            const primaryColorInput = document.getElementById('primaryColor');
-            let primaryColor = primaryColorInput.value;
-            if (primaryColor && !primaryColor.startsWith('#')) {
-                primaryColor = '#' + primaryColor;
-            }
-            document.getElementById('primaryColorPreview').style.backgroundColor = primaryColor;
-            primaryColorInput.value = primaryColor;
-            updateUrl();
-        }
-
-        // 更新副顏色
-        function updateSecondaryColor() {
-            const secondaryColorInput = document.getElementById('secondaryColor');
-            let secondaryColor = secondaryColorInput.value;
-            if (secondaryColor && !secondaryColor.startsWith('#')) {
-                secondaryColor = '#' + secondaryColor;
-            }
-            document.getElementById('secondaryColorPreview').style.backgroundColor = secondaryColor;
-            secondaryColorInput.value = secondaryColor;
-            updateUrl();
-        }
-
-        // 更新URL
-        function updateUrl() {
-            const title = document.getElementById('title').value || '';
-            const date = document.getElementById('date').value.replace(/-/g, '') || '';
-            const primaryColor = document.getElementById('primaryColor').value || '#02a568';
-            const secondaryColor = document.getElementById('secondaryColor').value || '#e6f7f0';
-            const imageCount = document.getElementById('imageCount').value || '1';
-
-            // 新增：獲取新控制項的值
-            const showTitle = document.getElementById('showTitle').checked;
-            const showFooter = document.getElementById('showFooter').checked;
-            const imageRounded = document.getElementById('imageRounded').checked;
-            const screenPaddingV = document.getElementById('screenPaddingVertical').value;
-            const screenPaddingH = document.getElementById('screenPaddingHorizontal').value;
-            const bgType = document.querySelector('input[name="bgType"]:checked')?.value || 'dots';
-            const bgColorValue = document.getElementById('bgColorValue').value;
-            const bgImageUrl = document.getElementById('bgImageUrl').value;
-            const imageGapV = document.getElementById('imageGapVertical').value;
-            const imageGapH = document.getElementById('imageGapHorizontal').value;
-
-            // 構建URL參數（所有參數都是可選的）
-            let url = '';
-
-            // 只有有值時才添加參數
-            if (title) url += `title=${encodeURIComponent(title)}&`;
-            if (date) url += `date=${date}&`;
-            url += `primaryColor=${encodeURIComponent(primaryColor)}&`;
-            url += `secondaryColor=${encodeURIComponent(secondaryColor)}&`;
-            url += `imageCount=${imageCount}`;
-
-            // 新增：添加新參數（只有非預設值才加入以節省URL長度）
-            if (!showTitle) url += `&st=0`;
-            if (!showFooter) url += `&sf=0`;
-            if (!imageRounded) url += `&br=0`; // br=1 是預設，所以 br=0 才加
-            if (screenPaddingV !== '10') url += `&spv=${screenPaddingV}`;
-            if (screenPaddingH !== '10') url += `&sph=${screenPaddingH}`;
-            if (bgType !== 'dots') {
-                url += `&bt=${bgType}`;
-                if (bgType === 'color' && bgColorValue) {
-                    url += `&bc=${encodeURIComponent(bgColorValue)}`;
-                } else if (bgType === 'image' && bgImageUrl) {
-                    url += `&bi=${encodeURIComponent(bgImageUrl)}`;
-                }
-            }
-            if (imageGapV !== '10') url += `&igv=${imageGapV}`;
-            if (imageGapH !== '10') url += `&igh=${imageGapH}`;
-
-            if (imageIds.length > 0) {
-                // 處理混合的圖片來源：Imgur ID 和完整 URL
-                const encodedImageIds = imageIds.map(id => {
-                    // 如果是完整 URL（以 http 開頭），則進行編碼
-                    if (id.startsWith('http')) {
-                        return encodeURIComponent(id);
-                    }
-                    // 如果是 Imgur ID，保持原樣
-                    return id;
-                });
-                url += `&id=${encodedImageIds.join(',')}`;
-            }
-
-            console.log('生成的 URL 參數:', url);
-            console.log('目前圖片 ID:', imageIds);
-
-            // 壓縮URL
-            const compressedUrl = LZString.compressToEncodedURIComponent(url);
-            console.log('壓縮後:', compressedUrl);
-
-            // 更新URL顯示
-            document.getElementById('url').value = `https://news.wentzao.com/?data=${compressedUrl}`;
-            document.getElementById('lineurl').value = `https://liff.line.me/1660786685-j636WZpM?data=${compressedUrl}`;
-            updatePreview();
-        }
-
-        // 更新預覽
-        function updatePreview() {
-            const previewIframe = document.getElementById('previewIframe');
-            const previewUrl = document.getElementById('url').value;
-
-            // 只有當URL發生變化時才更新iframe的src
-            if (previewIframe.src !== previewUrl) {
-                previewIframe.src = previewUrl;
-            }
-        }
-
-        // 更新預覽縮放比例
-        function updateScale() {
-            const scale = document.getElementById('scale').value;
-            const deviceSimulator = document.getElementById('deviceSimulator');
-            const deviceScreen = document.getElementById('deviceScreen');
-            const deviceLabel = document.getElementById('deviceLabel');
-            const previewContainer = document.getElementById('previewContainer');
-
-            // 移除所有設備類別
-            deviceSimulator.className = 'device-simulator';
-            deviceScreen.className = 'device-screen';
-
-            let containerScale = 1;
-
-            if (scale === '1') {
-                // 手機模擬器
-                deviceSimulator.classList.add('mobile');
-                deviceScreen.classList.add('mobile');
-                deviceLabel.textContent = 'iPhone 14 Pro (390×844)';
-                containerScale = 0.6; // 縮小以適應視窗
-            } else if (scale === '0.75') {
-                // 平板模擬器
-                deviceSimulator.classList.add('tablet');
-                deviceScreen.classList.add('tablet');
-                deviceLabel.textContent = 'iPad Pro (820×1180)';
-                containerScale = 0.4; // 縮小以適應視窗
-            } else {
-                // 桌機模擬器
-                deviceSimulator.classList.add('desktop');
-                deviceScreen.classList.add('desktop');
-                deviceLabel.textContent = 'Desktop (1400×900)';
-                containerScale = 0.45; // 縮小以適應視窗
-            }
-
-            // 應用容器縮放
-            previewContainer.style.transform = `scale(${containerScale})`;
-
-            updatePreview();
-        }
-
-        // 新增：更新背景類型UI顯示
-        function updateBgTypeUI() {
-            const bgType = document.querySelector('input[name="bgType"]:checked').value;
-            const bgColorPicker = document.getElementById('bgColorPicker');
-            const bgImageUpload = document.getElementById('bgImageUpload');
-
-            // 隱藏所有條件顯示區塊
-            bgColorPicker.style.display = 'none';
-            bgImageUpload.style.display = 'none';
-
-            // 根據選擇顯示對應區塊
-            if (bgType === 'color') {
-                bgColorPicker.style.display = 'block';
-            } else if (bgType === 'image') {
-                bgImageUpload.style.display = 'block';
-            }
-        }
-
-        // 新增：上傳背景圖片到Imgur
-        function uploadBgImageToImgur(file) {
-            const clientId = "a0a92307b538c2f";
-            const bgImageUrlInput = document.getElementById('bgImageUrl');
-
-            // 顯示上傳中狀態
-            bgImageUrlInput.value = '上傳中...';
-            bgImageUrlInput.disabled = true;
-
-            fileToBase64(file)
-                .then((base64) => {
-                    return fetch("https://imgurproxy.dreamdomroy.workers.dev/", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            image: base64,
-                            clientId: clientId
-                        }),
-                        muteHttpExceptions: true,
-                    });
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        bgImageUrlInput.value = result.data.link;
-                        updateUrl();
-                    } else {
-                        alert("背景圖片上傳失敗，請重試！");
-                        bgImageUrlInput.value = '';
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    bgImageUrlInput.value = '';
-                    alert("上傳失敗: " + error.message);
-                })
-                .finally(() => {
-                    bgImageUrlInput.disabled = false;
-                });
-        }
-
-        // 複製公告網址到剪貼板
-        function copyToClipboard() {
-            const url = document.getElementById('url').value;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('網址已複製！');
-            });
-        }
-
-        // 複製LINE圖文網址到剪貼板
-        function copyToClipboard2() {
-            const url = document.getElementById('lineurl').value;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('網址已複製！');
-            });
-        }
-
-        function formatDateString(dateString) {
-            if (!dateString) return ''; // 處理 null/undefined 情況
-            if (dateString.length === 8) {
-                return dateString.slice(0, 4) + '-' + dateString.slice(4, 6) + '-' + dateString.slice(6, 8);
-            }
-            return dateString;
-        }
-
-        // 解碼並應用數據
-        function decodeAndApplyData() {
-            try {
-                const input = document.getElementById('decodedUrlInput');
-                console.log('=== 開始解碼 ===');
-                console.log('輸入值:', input.value);
-
-                // 處理不同格式的輸入（完整URL或只有data部分）
-                let dataParam = input.value;
-                if (dataParam.includes('?data=')) {
-                    dataParam = dataParam.split('?data=')[1];
-                } else if (dataParam.includes('data=')) {
-                    dataParam = dataParam.split('data=')[1];
-                }
-                // 去除可能的 hash 或其他參數
-                if (dataParam.includes('&')) {
-                    dataParam = dataParam.split('&')[0];
-                }
-                if (dataParam.includes('#')) {
-                    dataParam = dataParam.split('#')[0];
-                }
-
-                console.log('Data 參數:', dataParam);
-
-                const data = LZString.decompressFromEncodedURIComponent(dataParam);
-                console.log('解壓後數據:', data);
-
-                if (!data) {
-                    alert('解壓縮失敗，請確認網址格式正確');
-                    return;
-                }
-
-                const params = new URLSearchParams(data);
-                console.log('解析後參數:');
-                for (const [key, value] of params.entries()) {
-                    console.log(`  ${key}: ${value}`);
-                }
-
-                // 更新頁面元素（帶 null 檢查）
-                document.getElementById('title').value = params.get('title') || '';
-                document.getElementById('date').value = formatDateString(params.get('date'));
-                document.getElementById('primaryColor').value = params.get('primaryColor') || '#02a568';
-                document.getElementById('secondaryColor').value = params.get('secondaryColor') || '#e6f7f0';
-                document.getElementById('imageCount').value = params.get('imageCount') || '1';
-
-                // 更新新增的參數（向下相容：舊的 URL 可能沒有這些參數）
-                document.getElementById('showTitle').checked = params.get('st') !== '0';
-                document.getElementById('showFooter').checked = params.get('sf') !== '0';
-                document.getElementById('imageRounded').checked = params.get('br') !== '0';
-
-                // 螢幕邊界
-                document.getElementById('screenPaddingVertical').value = params.get('spv') || '10';
-                document.getElementById('screenPaddingHorizontal').value = params.get('sph') || '10';
-                document.getElementById('screenPaddingVerticalValue').textContent = params.get('spv') || '10';
-                document.getElementById('screenPaddingHorizontalValue').textContent = params.get('sph') || '10';
-
-                // 背景設定（安全處理）
-                const bgType = params.get('bt') || 'dots';
-                try {
-                    const bgTypeElement = document.querySelector(`input[name="bgType"][value="${bgType}"]`);
-                    if (bgTypeElement) {
-                        bgTypeElement.checked = true;
-                    } else {
-                        // 如果找不到對應的 bgType，預設選擇 dots
-                        document.querySelector('input[name="bgType"][value="dots"]').checked = true;
-                    }
-                } catch (e) {
-                    console.warn('背景類型設定失敗:', e);
-                    document.querySelector('input[name="bgType"][value="dots"]').checked = true;
-                }
-
-                if (bgType === 'color') {
-                    document.getElementById('bgColorValue').value = params.get('bc') || '#FFFFFF';
-                } else if (bgType === 'image') {
-                    document.getElementById('bgImageUrl').value = params.get('bi') ? decodeURIComponent(params.get('bi')) : '';
-                }
-                updateBgTypeUI(); // 更新 UI 顯示
-
-                // 圖片間距
-                document.getElementById('imageGapVertical').value = params.get('igv') || '10';
-                document.getElementById('imageGapHorizontal').value = params.get('igh') || '10';
-                document.getElementById('imageGapVerticalValue').textContent = params.get('igv') || '10';
-                document.getElementById('imageGapHorizontalValue').textContent = params.get('igh') || '10';
-
-                // 解碼圖片 ID
-                const imageIdsDecoded = params.get('id');
-                console.log('圖片 ID:', imageIdsDecoded);
-
-                if (imageIdsDecoded) {
-                    // 清空現有圖片列表和陣列
-                    document.getElementById('imageList').innerHTML = '';
-                    imageIds = [];
-
-                    const rawImageIds = imageIdsDecoded.split(',');
-                    console.log('分割後的圖片 ID:', rawImageIds);
-
-                    const decodedImageIds = rawImageIds.map(id => {
-                        // 如果是編碼過的 URL，進行解碼
-                        if (id.includes('%')) {
-                            try {
-                                const decodedId = decodeURIComponent(id);
-                                // 如果解碼後是完整 URL，返回解碼後的結果
-                                if (decodedId.startsWith('http')) {
-                                    return decodedId;
-                                }
-                            } catch (e) {
-                                // 解碼失敗，可能不是編碼的 URL
-                            }
-                        }
-                        // 其他情況返回原始 ID
-                        return id;
-                    });
-
-                    console.log('解碼後的圖片 ID:', decodedImageIds);
-
-                    decodedImageIds.forEach(id => {
-                        console.log('載入圖片:', id);
-                        if (id.startsWith('http')) {
-                            // 完整 URL，直接載入
-                            fetchImageFromUrl(id);
-                        } else {
-                            // Imgur ID，使用現有函數
-                            fetchImageFromImgur(id);
-                        }
-                    });
-                } else {
-                    console.log('沒有找到圖片 ID');
-                }
-
-                updatePrimaryColor()
-                updateSecondaryColor()
-
-                // 關閉 Modal
-                const modalElement = document.querySelector('#decodeModal');
-                var modal = bootstrap.Modal.getInstance(modalElement);
-                modal.hide();
-
-                console.log('=== 解碼完成 ===');
-            } catch (error) {
-                console.error('解碼錯誤:', error);
-                alert('解碼過程發生錯誤: ' + error.message);
-            }
-        }
-
-        function fetchImageFromImgur(id) {
-            const clientId = "a0a92307b538c2f";
-            fetch(`https://api.imgur.com/3/image/${id}`, {
-                headers: {
-                    Authorization: "Client-ID " + clientId,
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const imgContainer = document.createElement('div');
-                        imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
-                        imgContainer.dataset.imageId = data.data.id;
-
-                        const img = document.createElement('img');
-                        img.src = data.data.link;
-                        img.classList.add('image-preview');
-
-                        // 創建刪除按鈕
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.classList.add('delete-btn');
-                        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-                        deleteBtn.onclick = () => {
-                            imgContainer.remove();  // 移除圖片容器
-                            const index = imageIds.indexOf(data.data.id);
-                            if (index > -1) {
-                                imageIds.splice(index, 1);  // 移除圖片ID
-                            }
-                            updateUrl();  // 更新 URL
-                            updatePreview();  // 更新預覽
-                        };
-
-                        // 將圖片和刪除按鈕添加到容器中
-                        imgContainer.appendChild(img);
-                        imgContainer.appendChild(deleteBtn);
-                        document.getElementById('imageList').appendChild(imgContainer);
-
-                        // 新增：將圖片 ID 添加到陣列
-                        imageIds.push(data.data.id);
-                        console.log('Imgur 圖片已載入:', data.data.id, '目前 imageIds:', imageIds);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error loading image from Imgur:", error);
-                })
-                .finally(() => {
-                    updateUrl();
-                    updatePreview();  // 確保更新預覽，無論加載成功或失敗
-                });
-        }
-
-        // 從完整 URL 載入圖片
-        function fetchImageFromUrl(imageUrl) {
-            const imgContainer = document.createElement('div');
-            imgContainer.classList.add('img-container', 'col-12', 'col-lg-4', 'col-md-6');
-            imgContainer.dataset.imageId = imageUrl;
-
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.classList.add('image-preview');
-
-            // 創建刪除按鈕
-            const deleteBtn = document.createElement('button');
-            deleteBtn.classList.add('delete-btn');
-            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-            deleteBtn.onclick = () => {
-                imgContainer.remove();  // 移除圖片容器
-                const index = imageIds.indexOf(imageUrl);
-                if (index > -1) {
-                    imageIds.splice(index, 1);  // 移除圖片ID
-                }
-                updateUrl();  // 更新 URL
-                updatePreview();  // 更新預覽
-            };
-
-            // 將圖片和刪除按鈕添加到容器中
-            imgContainer.appendChild(img);
-            imgContainer.appendChild(deleteBtn);
-            document.getElementById('imageList').appendChild(imgContainer);
-
-            // 新增：將圖片 URL 添加到陣列
-            imageIds.push(imageUrl);
-            console.log('URL 圖片已載入:', imageUrl, '目前 imageIds:', imageIds);
-
-            updateUrl();
-            updatePreview();
-        }
-    </script>
-    <!-- <script src=script.js></script> -->
+    <!-- 解碼 Modal -->
+    <div class="modal fade" id="decodeModal" tabindex="-1" aria-labelledby="decodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="decodeModalLabel">載入現有公告</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">貼上公告連結</label>
+                    <input type="text" id="decodedUrlInput" class="form-control"
+                        placeholder="https://news.wentzao.com/?data=...">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="decodeAndApplyData()"
+                        style="background: var(--primary); border-color: var(--primary);">載入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自訂腳本 -->
+    <script src="js/editor.js"></script>
 </body>
 
 </html>
