@@ -268,17 +268,23 @@ function updateSecondaryColor(fromPicker = false) {
 // ========== 剪貼簿函數 ==========
 
 function copyToClipboard() {
-    const urlInput = document.getElementById('url');
-    urlInput.select();
-    document.execCommand('copy');
-    showToast('公告網址已複製！');
+    const url = document.getElementById('url').value;
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('✅ 公告網址已複製！');
+    }).catch(err => {
+        console.error('複製失敗:', err);
+        showToast('❌ 複製失敗，請手動複製');
+    });
 }
 
 function copyToClipboard2() {
-    const urlInput = document.getElementById('lineurl');
-    urlInput.select();
-    document.execCommand('copy');
-    showToast('LINE 網址已複製！');
+    const url = document.getElementById('lineurl').value;
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('✅ LINE 網址已複製！');
+    }).catch(err => {
+        console.error('複製失敗:', err);
+        showToast('❌ 複製失敗，請手動複製');
+    });
 }
 
 function showToast(message) {
