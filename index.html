@@ -1137,8 +1137,12 @@
             // 解碼圖片 ID
             const imageIdsDecoded = params.get('id');
             if (imageIdsDecoded) {
+                // 清空現有圖片列表和陣列
+                document.getElementById('imageList').innerHTML = '';
+                imageIds = [];
+
                 const rawImageIds = imageIdsDecoded.split(',');
-                imageIds = rawImageIds.map(id => {
+                const decodedImageIds = rawImageIds.map(id => {
                     // 如果是編碼過的 URL，進行解碼
                     if (id.includes('%')) {
                         try {
@@ -1155,7 +1159,7 @@
                     return id;
                 });
 
-                imageIds.forEach(id => {
+                decodedImageIds.forEach(id => {
                     if (id.startsWith('http')) {
                         // 完整 URL，直接載入
                         fetchImageFromUrl(id);
