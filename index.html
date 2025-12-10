@@ -1087,6 +1087,7 @@
         }
 
         function formatDateString(dateString) {
+            if (!dateString) return ''; // 處理 null/undefined 情況
             if (dateString.length === 8) {
                 return dateString.slice(0, 4) + '-' + dateString.slice(4, 6) + '-' + dateString.slice(6, 8);
             }
@@ -1099,12 +1100,39 @@
             const data = LZString.decompressFromEncodedURIComponent(input.value.split('?data=')[1]);
             const params = new URLSearchParams(data);
 
-            // 更新頁面元素
-            document.getElementById('title').value = params.get('title');
+            // 更新頁面元素（帶 null 檢查）
+            document.getElementById('title').value = params.get('title') || '';
             document.getElementById('date').value = formatDateString(params.get('date'));
-            document.getElementById('primaryColor').value = params.get('primaryColor');
-            document.getElementById('secondaryColor').value = params.get('secondaryColor');
-            document.getElementById('imageCount').value = params.get('imageCount');
+            document.getElementById('primaryColor').value = params.get('primaryColor') || '#02a568';
+            document.getElementById('secondaryColor').value = params.get('secondaryColor') || '#e6f7f0';
+            document.getElementById('imageCount').value = params.get('imageCount') || '1';
+
+            // 更新新增的參數（向下相容：舊的 URL 可能沒有這些參數）
+            document.getElementById('showTitle').checked = params.get('st') !== '0';
+            document.getElementById('showFooter').checked = params.get('sf') !== '0';
+            document.getElementById('imageRounded').checked = params.get('br') !== '0';
+
+            // 螢幕邊界
+            document.getElementById('screenPaddingVertical').value = params.get('spv') || '10';
+            document.getElementById('screenPaddingHorizontal').value = params.get('sph') || '10';
+            document.getElementById('screenPaddingVerticalValue').textContent = params.get('spv') || '10';
+            document.getElementById('screenPaddingHorizontalValue').textContent = params.get('sph') || '10';
+
+            // 背景設定
+            const bgType = params.get('bt') || 'dots';
+            document.querySelector(`input[name="bgType"][value="${bgType}"]`).checked = true;
+            if (bgType === 'color') {
+                document.getElementById('bgColorValue').value = params.get('bc') || '#FFFFFF';
+            } else if (bgType === 'image') {
+                document.getElementById('bgImageUrl').value = params.get('bi') ? decodeURIComponent(params.get('bi')) : '';
+            }
+            updateBgTypeUI(); // 更新 UI 顯示
+
+            // 圖片間距
+            document.getElementById('imageGapVertical').value = params.get('igv') || '10';
+            document.getElementById('imageGapHorizontal').value = params.get('igh') || '10';
+            document.getElementById('imageGapVerticalValue').textContent = params.get('igv') || '10';
+            document.getElementById('imageGapHorizontalValue').textContent = params.get('igh') || '10';
 
             // 解碼圖片 ID
             const imageIdsDecoded = params.get('id');
